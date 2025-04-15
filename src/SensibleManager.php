@@ -39,7 +39,7 @@ class SensibleManager
     }
 
     /**
-     * Run configurables
+     * Run configurables.
      */
     public function run(): void
     {
