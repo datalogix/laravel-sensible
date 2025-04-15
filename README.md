@@ -3,7 +3,7 @@
 [![Latest Stable Version](https://poser.pugx.org/datalogix/laravel-sensible/version)](https://packagist.org/packages/datalogix/laravel-sensible)
 [![Total Downloads](https://poser.pugx.org/datalogix/laravel-sensible/downloads)](https://packagist.org/packages/datalogix/laravel-sensible)
 [![tests](https://github.com/datalogix/laravel-sensible/workflows/tests/badge.svg)](https://github.com/datalogix/laravel-sensible/actions)
-[![StyleCI](https://github.styleci.io/repos/304879300/shield?style=flat)](https://github.styleci.io/repos/304879300)
+[![StyleCI](https://github.styleci.io/repos/966925497/shield?style=flat)](https://github.styleci.io/repos/966925497)
 [![codecov](https://codecov.io/gh/datalogix/laravel-sensible/branch/main/graph/badge.svg)](https://codecov.io/gh/datalogix/laravel-sensible)
 [![License](https://poser.pugx.org/datalogix/laravel-sensible/license)](https://packagist.org/packages/datalogix/laravel-sensible)
 
