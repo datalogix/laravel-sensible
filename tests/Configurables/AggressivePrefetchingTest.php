@@ -8,7 +8,14 @@ use Illuminate\Support\Facades\Vite;
 
 class AggressivePrefetchingTest extends TestCase
 {
-    public function test_configure_vite_aggressive_prefetching()
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Vite::usePrefetchStrategy(null);
+    }
+
+    public function test_configure()
     {
         Vite::spy();
 
