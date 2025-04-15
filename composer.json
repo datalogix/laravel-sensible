@@ -1,0 +1,49 @@
+{
+    "name": "datalogix/laravel-sensible",
+    "description": "Laravel Sensible is a lightweight utility package for applying smart defaults and common best practices in everyday Laravel development.",
+    "keywords": ["laravel", "sensible", "laravel-sensible", "defaults", "configuration", "utility"],
+    "homepage": "https://github.com/datalogix/laravel-sensible",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Ricardo Gobbo de Souza",
+            "email": "ricardogobbosouza@yahoo.com.br"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/database": "^11.39|^12.0",
+        "illuminate/support": "^11.39|^12.0",
+        "illuminate/validation": "^11.39|^12.0"
+    },
+    "require-dev": {
+        "graham-campbell/testbench": "^6.2",
+        "phpunit/phpunit": "^10.5|^11.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Datalogix\\Sensible\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Datalogix\\Sensible\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Datalogix\\Sensible\\SensibleServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
