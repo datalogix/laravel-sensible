@@ -17,7 +17,7 @@ You can install the package via composer:
 composer require datalogix/laravel-sensible
 ```
 
-No manual setup needed — the package registers itself automatically.
+The package will automatically register itself.
 
 ## Features
 
