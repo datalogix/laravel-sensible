@@ -19,6 +19,7 @@
     },
     "require-dev": {
         "graham-campbell/testbench": "^6.2",
+        "laravel/pint": "^1.25",
         "phpunit/phpunit": "^10.5|^11.0"
     },
     "autoload": {
@@ -32,6 +33,7 @@
         }
     },
     "scripts": {
+        "lint": "vendor/bin/pint",
         "test": "vendor/bin/phpunit"
     },
     "extra": {
