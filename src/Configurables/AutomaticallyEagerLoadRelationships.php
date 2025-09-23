@@ -12,8 +12,8 @@ class AutomaticallyEagerLoadRelationships implements Configurable
      */
     public function enabled(): bool
     {
-        return method_exists(Model::class, 'automaticallyEagerLoadRelationships')
-            && config()->boolean(sprintf('sensible.%s', self::class), true);
+        return config()->boolean(sprintf('sensible.%s', self::class), true)
+            && method_exists(Model::class, 'automaticallyEagerLoadRelationships');
     }
 
     /**

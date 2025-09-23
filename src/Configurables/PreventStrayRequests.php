@@ -13,7 +13,7 @@ class PreventStrayRequests implements Configurable
     public function enabled(): bool
     {
         return config()->boolean(sprintf('sensible.%s', self::class), true)
-        && app()->runningUnitTests();
+            && app()->runningUnitTests();
     }
 
     /**
