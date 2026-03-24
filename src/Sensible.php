@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Facade;
  * @method static void register(string|Configurable $configurable)
  * @method static void run()
  *
- * @see \Datalogix\Sensible\SensibleManager
+ * @see SensibleManager
  */
 class Sensible extends Facade
 {
