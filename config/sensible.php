@@ -71,12 +71,18 @@ return [
     /**
      * 🔑 Set Default Password Strategy.
      *
-     * Configures a default password policy to enforce strong passwords when creating or seeding users.
-     * Ensures passwords meet the following criteria:
-     * - Minimum length of 8 characters.
-     * - Maximum length of 20 characters.
-     * - Must include mixed case letters, numbers, and symbols.
-     * - Ensures password is not compromised.
+     * Configures a default password policy to enforce when creating or seeding users.
+     * Accepts `true`/`false` to enable/disable (defaults to the "complex" policy), or one of
+     * the `PasswordType` values below:
+     * - `simple`       – Minimum length of 6 characters only, no other requirements.
+     * - `numeric`      – Requires at least one number (4 to 6 characters).
+     * - `pin`          – Requires at least one number, fixed length of 4 characters.
+     * - `passphrase`   – Minimum length of 16 characters only, no other requirements.
+     * - `alphanumeric` – Minimum length of 8, maximum of 20, requires letters and numbers.
+     * - `complex`      – Minimum length of 8, maximum of 20, mixed case letters, numbers, symbols,
+     *   and checked against known data breaches (default when only `true` is set).
+     *
+     * Other policies (e.g. custom rules) can be added by extending `PasswordType`.
      */
     SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', app()->isProduction()),
 
