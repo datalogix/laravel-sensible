@@ -20,6 +20,10 @@ class ForceScheme implements Configurable
      */
     public function configure(): void
     {
-        URL::forceScheme('https');
+        if (method_exists(URL::class, 'forceHttps')) {
+            URL::forceHttps(app()->isProduction());
+        } else {
+            URL::forceScheme('https');
+        }
     }
 }
