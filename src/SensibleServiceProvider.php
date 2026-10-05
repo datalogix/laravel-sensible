@@ -22,7 +22,7 @@ class SensibleServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        app('sensible')->run();
+        $this->app->booted(fn () => $this->app->make('sensible')->run());
 
         if ($this->app->runningInConsole()) {
             $this->publishes([__DIR__.'/../config/sensible.php' => config_path('sensible.php')], 'config');

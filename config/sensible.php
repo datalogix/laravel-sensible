@@ -23,7 +23,8 @@ return [
     /**
      * ⚡️ Auto Eager Loading.
      *
-     * Automatically eager loads relationships defined in the model’s `$with` property.
+     * When a relationship is lazy loaded on a model retrieved as part of a collection,
+     * it is loaded for every model in that collection at once (Laravel 12.8+).
      * Reduces N+1 query issues without needing to call `with()` manually.
      */
     AutomaticallyEagerLoadRelationships::class => env('SENSIBLE_AUTOMATICALLY_EAGER_LOAD_RELATIONSHIPS', true),
@@ -75,14 +76,15 @@ return [
      * Accepts `true`/`false` to enable/disable (defaults to the "complex" policy), or one of
      * the `PasswordType` values below:
      * - `simple`       – Minimum length of 6 characters only, no other requirements.
-     * - `numeric`      – Requires at least one number (4 to 6 characters).
-     * - `pin`          – Requires at least one number, fixed length of 4 characters.
+     * - `numeric`      – Digits only, 4 to 6 digits.
+     * - `pin`          – Digits only, exactly 4 digits.
      * - `passphrase`   – Minimum length of 16 characters only, no other requirements.
-     * - `alphanumeric` – Minimum length of 8, maximum of 20, requires letters and numbers.
-     * - `complex`      – Minimum length of 8, maximum of 20, mixed case letters, numbers, symbols,
+     * - `alphanumeric` – Minimum length of 8, requires letters and numbers.
+     * - `complex`      – Minimum length of 8, mixed case letters, numbers, symbols,
      *   and checked against known data breaches (default when only `true` is set).
+     *   The breach check is skipped in tests, since it calls an external API.
      *
-     * Other policies (e.g. custom rules) can be added by extending `PasswordType`.
+     * Any other value throws an exception, so typos don't silently change the policy.
      */
     SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', app()->isProduction()),
 

@@ -2,17 +2,20 @@
 
 namespace Datalogix\Sensible\Configurables;
 
+use Datalogix\Sensible\Concerns\ReadsConfiguration;
 use Datalogix\Sensible\Contracts\Configurable;
 use Illuminate\Support\Facades\URL;
 
 class ForceScheme implements Configurable
 {
+    use ReadsConfiguration;
+
     /**
      * Whether the configurable is enabled or not.
      */
     public function enabled(): bool
     {
-        return config()->boolean(sprintf('sensible.%s', self::class), app()->isProduction());
+        return $this->configEnabled();
     }
 
     /**
@@ -20,10 +23,6 @@ class ForceScheme implements Configurable
      */
     public function configure(): void
     {
-        if (method_exists(URL::getFacadeRoot(), 'forceHttps')) {
-            URL::forceHttps(app()->isProduction());
-        } else {
-            URL::forceScheme('https');
-        }
+        URL::forceHttps();
     }
 }

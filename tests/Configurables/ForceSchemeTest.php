@@ -4,7 +4,6 @@ namespace Datalogix\Sensible\Tests\Configurables;
 
 use Datalogix\Sensible\Configurables\ForceScheme;
 use Datalogix\Sensible\Tests\TestCase;
-use Illuminate\Contracts\Routing\UrlGenerator;
 use Illuminate\Support\Facades\URL;
 
 class ForceSchemeTest extends TestCase
@@ -23,94 +22,14 @@ class ForceSchemeTest extends TestCase
         $this->assertStringStartsWith('https://', URL::to('/test'));
     }
 
-    public function test_configure_does_not_force_https_outside_production()
+    public function test_configure_forces_https_outside_production_when_enabled()
     {
         app()->detectEnvironment(fn (): string => 'local');
 
         $forceScheme = new ForceScheme;
         $forceScheme->configure();
 
-        $this->assertStringStartsWith('http://', URL::to('/test'));
-    }
-
-    public function test_configure_falls_back_to_force_scheme_when_force_https_is_unavailable()
-    {
-        $urlGenerator = new class implements UrlGenerator
-        {
-            public ?string $forcedScheme = null;
-
-            public function forceScheme($scheme)
-            {
-                $this->forcedScheme = $scheme;
-            }
-
-            public function current()
-            {
-                //
-            }
-
-            public function previous($fallback = false)
-            {
-                //
-            }
-
-            public function to($path, $extra = [], $secure = null)
-            {
-                //
-            }
-
-            public function secure($path, $parameters = [])
-            {
-                //
-            }
-
-            public function asset($path, $secure = null)
-            {
-                //
-            }
-
-            public function route($name, $parameters = [], $absolute = true)
-            {
-                //
-            }
-
-            public function signedRoute($name, $parameters = [], $expiration = null, $absolute = true)
-            {
-                //
-            }
-
-            public function temporarySignedRoute($name, $expiration, $parameters = [], $absolute = true)
-            {
-                //
-            }
-
-            public function query($path, $query = [], $extra = [], $secure = null)
-            {
-                //
-            }
-
-            public function action($action, $parameters = [], $absolute = true)
-            {
-                //
-            }
-
-            public function getRootControllerNamespace()
-            {
-                //
-            }
-
-            public function setRootControllerNamespace($rootNamespace)
-            {
-                //
-            }
-        };
-
-        URL::swap($urlGenerator);
-
-        $forceScheme = new ForceScheme;
-        $forceScheme->configure();
-
-        $this->assertSame('https', $urlGenerator->forcedScheme);
+        $this->assertStringStartsWith('https://', URL::to('/test'));
     }
 
     public function test_is_enabled_by_default()
@@ -127,5 +46,29 @@ class ForceSchemeTest extends TestCase
         $forceScheme = new ForceScheme;
 
         $this->assertFalse($forceScheme->enabled());
+    }
+
+    public function test_accepts_boolean_like_strings()
+    {
+        $forceScheme = new ForceScheme;
+
+        foreach (['1', 'on', 'yes', 'true'] as $value) {
+            config()->set('sensible.'.ForceScheme::class, $value);
+            $this->assertTrue($forceScheme->enabled(), $value);
+        }
+
+        foreach (['0', 'off', 'no', 'false', ''] as $value) {
+            config()->set('sensible.'.ForceScheme::class, $value);
+            $this->assertFalse($forceScheme->enabled(), $value);
+        }
+    }
+
+    public function test_throws_on_invalid_value()
+    {
+        config()->set('sensible.'.ForceScheme::class, 'banana');
+
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new ForceScheme)->enabled();
     }
 }

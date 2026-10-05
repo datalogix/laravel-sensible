@@ -2,6 +2,7 @@
 
 namespace Datalogix\Sensible;
 
+use Datalogix\Sensible\Contracts\Configurable;
 use Illuminate\Support\Facades\Facade;
 
 /**
