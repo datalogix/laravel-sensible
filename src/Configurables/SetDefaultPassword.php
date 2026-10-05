@@ -2,18 +2,22 @@
 
 namespace Datalogix\Sensible\Configurables;
 
+use Datalogix\Sensible\Concerns\ReadsConfiguration;
 use Datalogix\Sensible\Contracts\Configurable;
 use Datalogix\Sensible\Enums\PasswordType;
 use Illuminate\Validation\Rules\Password;
+use InvalidArgumentException;
 
 class SetDefaultPassword implements Configurable
 {
+    use ReadsConfiguration;
+
     /**
      * Whether the configurable is enabled or not.
      */
     public function enabled(): bool
     {
-        return (bool) $this->value();
+        return $this->type() !== null;
     }
 
     /**
@@ -21,35 +25,49 @@ class SetDefaultPassword implements Configurable
      */
     public function configure(): void
     {
-        Password::defaults(fn () => match ($this->type()) {
+        $type = $this->type() ?? PasswordType::Complex;
+
+        Password::defaults(fn () => match ($type) {
             PasswordType::Simple => Password::min(6),
-            PasswordType::Numeric => Password::min(4)->max(6)->numbers(),
-            PasswordType::Pin => Password::min(4)->max(4)->numbers(),
+            PasswordType::Numeric => Password::min(4)->rules('digits_between:4,6'),
+            PasswordType::Pin => Password::min(4)->rules('digits:4'),
             PasswordType::Passphrase => Password::min(16),
-            PasswordType::Alphanumeric => Password::min(8)->max(20)->letters()->numbers(),
-            PasswordType::Complex => Password::min(8)->max(20)
-                ->mixedCase()->letters()->numbers()->symbols()
-                ->uncompromised(),
+            PasswordType::Alphanumeric => Password::min(8)->letters()->numbers(),
+            PasswordType::Complex => Password::min(8)
+                ->mixedCase()->numbers()->symbols()
+                // Skipped in tests: the breach check calls an external API.
+                ->unless(app()->runningUnitTests(), fn (Password $password) => $password->uncompromised()),
         });
     }
 
     /**
-     * The raw configuration value, either a boolean (enable/disable) or a password type string.
+     * The password type to apply, or null when disabled.
+     *
+     * Boolean-like values enable the "complex" type or disable the configurable.
+     *
+     * @throws InvalidArgumentException
      */
-    protected function value(): bool|string
+    protected function type(): ?PasswordType
     {
-        return config(sprintf('sensible.%s', self::class), app()->isProduction());
-    }
+        $value = $this->configValue();
 
-    /**
-     * The password type to apply, defaulting to "complex" when only a boolean is configured.
-     */
-    protected function type(): PasswordType
-    {
-        $value = $this->value();
+        if ($value instanceof PasswordType) {
+            return $value;
+        }
 
-        return is_string($value)
-            ? PasswordType::tryFrom($value) ?? PasswordType::Complex
-            : PasswordType::Complex;
+        if (is_string($value) && $type = PasswordType::tryFrom(strtolower($value))) {
+            return $type;
+        }
+
+        return match ($this->toBoolean($value)) {
+            true => PasswordType::Complex,
+            false => null,
+            null => throw new InvalidArgumentException(sprintf(
+                'Configuration value for key [%s] must be a boolean or one of [%s], [%s] given.',
+                $this->configKey(),
+                implode(', ', array_column(PasswordType::cases(), 'value')),
+                var_export($value, true),
+            )),
+        };
     }
 }

@@ -2,10 +2,6 @@
 
 namespace Datalogix\Sensible\Enums;
 
-/**
- * Other types could be added in the future, such as:
- * - Custom: user-provided closure/rules via configuration.
- */
 enum PasswordType: string
 {
     case Simple = 'simple';

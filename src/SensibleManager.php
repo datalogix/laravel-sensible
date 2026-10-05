@@ -9,7 +9,7 @@ class SensibleManager
     /**
      * The list of configurables.
      *
-     * @var list<class-string<Configurable>>
+     * @var list<class-string<Configurable>|Configurable>
      */
     protected array $configurables = [
         Configurables\AggressivePrefetching::class,
@@ -25,17 +25,28 @@ class SensibleManager
     ];
 
     /**
+     * Whether the configurables have already been run.
+     */
+    protected bool $ran = false;
+
+    /**
      * Register a new configurable class.
      */
     public function register(string|Configurable $configurable): void
     {
-        $class = is_string($configurable) ? $configurable : get_class($configurable);
-
-        if (! is_subclass_of($class, Configurable::class)) {
-            throw new \InvalidArgumentException("{$class} must implement ".Configurable::class);
+        if (is_string($configurable) && ! is_subclass_of($configurable, Configurable::class)) {
+            throw new \InvalidArgumentException("{$configurable} must implement ".Configurable::class);
         }
 
-        $this->configurables[] = $class;
+        if (in_array($this->classOf($configurable), array_map($this->classOf(...), $this->configurables), true)) {
+            return;
+        }
+
+        $this->configurables[] = $configurable;
+
+        if ($this->ran) {
+            $this->apply($configurable);
+        }
     }
 
     /**
@@ -43,9 +54,37 @@ class SensibleManager
      */
     public function run(): void
     {
-        collect($this->configurables)
-            ->map(fn (string $class) => app($class))
-            ->filter(fn (Configurable $configurable) => $configurable->enabled())
-            ->each(fn (Configurable $configurable) => $configurable->configure());
+        $this->ran = true;
+
+        foreach ($this->configurables as $configurable) {
+            $this->apply($configurable);
+        }
+    }
+
+    /**
+     * Get the class name of the given configurable.
+     *
+     * @param  class-string<Configurable>|Configurable  $configurable
+     * @return class-string<Configurable>
+     */
+    protected function classOf(string|Configurable $configurable): string
+    {
+        return is_string($configurable) ? ltrim($configurable, '\\') : $configurable::class;
+    }
+
+    /**
+     * Configure the given configurable when it is enabled.
+     *
+     * @param  class-string<Configurable>|Configurable  $configurable
+     */
+    protected function apply(string|Configurable $configurable): void
+    {
+        if (is_string($configurable)) {
+            $configurable = app($configurable);
+        }
+
+        if ($configurable->enabled()) {
+            $configurable->configure();
+        }
     }
 }
