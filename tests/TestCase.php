@@ -3,14 +3,18 @@
 namespace Datalogix\Sensible\Tests;
 
 use Datalogix\Sensible\SensibleServiceProvider;
-use GrahamCampbell\TestBench\AbstractPackageTestCase;
 use Illuminate\Foundation\Application;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
-abstract class TestCase extends AbstractPackageTestCase
+abstract class TestCase extends OrchestraTestCase
 {
-    protected static function getServiceProviderClass(): string
+    /**
+     * @param  Application  $app
+     * @return array<int, class-string>
+     */
+    protected function getPackageProviders($app): array
     {
-        return SensibleServiceProvider::class;
+        return [SensibleServiceProvider::class];
     }
 
     /**
