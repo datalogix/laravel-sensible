@@ -1,0 +1,16 @@
+name: datalogix
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    uses: datalogix/workflows/.github/workflows/package.yml@v2
+    secrets: inherit
