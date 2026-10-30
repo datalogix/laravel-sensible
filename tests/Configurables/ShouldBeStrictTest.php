@@ -16,7 +16,7 @@ test('configure', function () {
     expect(Model::preventsAccessingMissingAttributes())->toBeTrue();
 });
 
-test('is disabled by default', function () {
+test('is disabled by default in production', function () {
     $shouldBeStrict = new ShouldBeStrict;
 
     expect($shouldBeStrict->enabled())->toBeFalse();
@@ -36,4 +36,13 @@ test('can be enabled', function () {
     $shouldBeStrict = new ShouldBeStrict;
 
     expect($shouldBeStrict->enabled())->toBeTrue();
+});
+
+test('can be disabled outside production', function () {
+    config()->set('sensible.'.ShouldBeStrict::class, false);
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $shouldBeStrict = new ShouldBeStrict;
+
+    expect($shouldBeStrict->enabled())->toBeFalse();
 });

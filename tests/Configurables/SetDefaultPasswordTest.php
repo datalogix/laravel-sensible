@@ -121,7 +121,7 @@ describe('applied rules', function () {
     });
 });
 
-test('is enabled by default', function () {
+test('is enabled by default in production', function () {
     $setDefaultPassword = new SetDefaultPassword;
 
     expect($setDefaultPassword->enabled())->toBeTrue();
@@ -150,6 +150,15 @@ test('can be disabled', function () {
 
     expect($setDefaultPassword->enabled())->toBeFalse();
 });
+
+test('can be enabled outside production', function (bool|string $value) {
+    config()->set('sensible.'.SetDefaultPassword::class, $value);
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $setDefaultPassword = new SetDefaultPassword;
+
+    expect($setDefaultPassword->enabled())->toBeTrue();
+})->with([true, 'simple']);
 
 test('pin rejects non digits', function () {
     config()->set('sensible.'.SetDefaultPassword::class, 'pin');

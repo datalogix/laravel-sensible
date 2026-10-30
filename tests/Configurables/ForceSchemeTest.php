@@ -14,7 +14,7 @@ test('configure forces https', function () {
     expect(URL::to('/test'))->toStartWith('https://');
 });
 
-test('is enabled by default', function () {
+test('is enabled by default in production', function () {
     $forceScheme = new ForceScheme;
 
     expect($forceScheme->enabled())->toBeTrue();

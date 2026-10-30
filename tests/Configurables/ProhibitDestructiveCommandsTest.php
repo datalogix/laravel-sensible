@@ -16,7 +16,7 @@ test('configure', function () {
         ->assertFailed();
 });
 
-test('is enabled by default', function () {
+test('is enabled by default in production', function () {
     $prohibitDestructiveCommands = new ProhibitDestructiveCommands;
 
     expect($prohibitDestructiveCommands->enabled())->toBeTrue();
@@ -36,4 +36,13 @@ test('can be disabled', function () {
     $prohibitDestructiveCommands = new ProhibitDestructiveCommands;
 
     expect($prohibitDestructiveCommands->enabled())->toBeFalse();
+});
+
+test('can be enabled outside production', function () {
+    config()->set('sensible.'.ProhibitDestructiveCommands::class, true);
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $prohibitDestructiveCommands = new ProhibitDestructiveCommands;
+
+    expect($prohibitDestructiveCommands->enabled())->toBeTrue();
 });
