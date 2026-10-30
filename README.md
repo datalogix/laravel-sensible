@@ -8,6 +8,11 @@
 
 > Laravel Sensible is a lightweight utility package for applying smart defaults and common best practices in everyday Laravel development.
 
+## Requirements
+
+- PHP 8.2+
+- Laravel 12 or 13
+
 ## Installation
 
 You can install the package via composer:
@@ -22,14 +27,14 @@ The package will automatically register itself.
 
 All features are optional and fully configurable via `config/sensible.php`:
 
-- 🚀 **Asset Prefetching** – Preload assets for faster load times.
-- ⚡️ **Auto Eager Loading** – Avoid N+1 queries automatically.
+- 🚀 **Asset Prefetching** – Prefetch assets for faster load times.
+- ⚡️ **Auto Eager Loading** – Avoid N+1 queries automatically (Laravel 12.8+; skipped on older versions).
 - 😴 **Fake Sleep** – Mocks the delay function in tests, preventing real delays.
 - 🔒 **Force HTTPS** – Enforce secure `https://` URLs.
 - 🕒 **Immutable Dates** – Prevent unexpected date mutations.
-- 🔄 **Prevent Stray Requests** – Block unmocked HTTP requests.
-- 🛑 **Safe Console** – Block dangerous Artisan commands.
-- 🔑 **Set Default Password** - Enforce strong password policies.
+- 🔄 **Prevent Stray Requests** – Block unmocked HTTP requests in tests.
+- 🛑 **Safe Console** – Block destructive database commands (e.g. `migrate:fresh`).
+- 🔑 **Set Default Password** – Enforce strong password policies.
 - ✅ **Strict Models** – Enforce strict model behavior.
 - 🔓 **Optional Unguarded Models** – Disable mass-assignment protection.
 
@@ -38,7 +43,7 @@ All features are optional and fully configurable via `config/sensible.php`:
 You can publish the config file using the command:
 
 ```bash
-php artisan vendor:publish --provider="Datalogix\Sensible\SensibleServiceProvider" --tag="config"
+php artisan vendor:publish --tag="sensible-config"
 ```
 
 This will create a `config/sensible.php` file where you can enable or disable individual features:
@@ -54,18 +59,20 @@ return [
 
 Each feature can also be toggled through an environment variable. Values such as `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` are accepted; anything else throws an exception.
 
-| Feature                 | Environment variable                              | Default                   |
-| ----------------------- | ------------------------------------------------- | ------------------------- |
-| Asset Prefetching       | `SENSIBLE_AGGRESSIVE_PREFETCHING`                 | `true`                    |
-| Auto Eager Loading      | `SENSIBLE_AUTOMATICALLY_EAGER_LOAD_RELATIONSHIPS` | `true`                    |
-| Fake Sleep (tests only) | `SENSIBLE_FAKE_SLEEP`                             | `true`                    |
-| Force HTTPS             | `SENSIBLE_FORCE_SCHEME`                           | `true` in production      |
-| Immutable Dates         | `SENSIBLE_IMMUTABLE_DATES`                        | `true`                    |
-| Prevent Stray Requests  | `SENSIBLE_PREVENT_STRAY_REQUESTS`                 | `true`                    |
-| Safe Console            | `SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS`          | `true` in production      |
-| Set Default Password    | `SENSIBLE_SET_DEFAULT_PASSWORD`                   | `true` in production      |
-| Strict Models           | `SENSIBLE_SHOULD_BE_STRICT`                       | `true` outside production |
-| Unguarded Models        | `SENSIBLE_UNGUARD`                                | `false`                   |
+| Feature                             | Environment variable                              | Default                   |
+| ----------------------------------- | ------------------------------------------------- | ------------------------- |
+| Asset Prefetching                   | `SENSIBLE_AGGRESSIVE_PREFETCHING`                 | `true`                    |
+| Auto Eager Loading                  | `SENSIBLE_AUTOMATICALLY_EAGER_LOAD_RELATIONSHIPS` | `true`                    |
+| Fake Sleep (tests only)             | `SENSIBLE_FAKE_SLEEP`                             | `true`                    |
+| Force HTTPS                         | `SENSIBLE_FORCE_SCHEME`                           | `true` in production      |
+| Immutable Dates                     | `SENSIBLE_IMMUTABLE_DATES`                        | `true`                    |
+| Prevent Stray Requests (tests only) | `SENSIBLE_PREVENT_STRAY_REQUESTS`                 | `true`                    |
+| Safe Console                        | `SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS`          | `true` in production      |
+| Set Default Password                | `SENSIBLE_SET_DEFAULT_PASSWORD`                   | `true` in production      |
+| Strict Models                       | `SENSIBLE_SHOULD_BE_STRICT`                       | `true` outside production |
+| Unguarded Models                    | `SENSIBLE_UNGUARD`                                | `false`                   |
+
+"In production" means `APP_ENV` is `production` or not set. It is read from the environment when the config loads, so the `--env=` Artisan option does not affect these defaults; set the `SENSIBLE_*` variable explicitly if needed.
 
 ### Password policies
 
@@ -79,6 +86,8 @@ Each feature can also be toggled through an environment variable. Values such as
 | `passphrase`   | At least 16 characters.                                                                                  |
 | `alphanumeric` | At least 8 characters, with letters and numbers.                                                         |
 | `complex`      | At least 8 characters, mixed case, numbers, symbols and not compromised (breach check skipped in tests). |
+
+In `config/sensible.php` you can also use the enum, e.g. `SetDefaultPassword::class => PasswordType::Pin` (`Datalogix\Sensible\Enums\PasswordType`). Any other value throws an exception.
 
 ## Custom configurables
 
@@ -113,4 +122,46 @@ public function boot(): void
 }
 ```
 
+`register()` accepts a class name (resolved through the container) or an instance. Classes that don't implement `Configurable` throw an `InvalidArgumentException`.
+
 Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class twice has no effect.
+
+### Reading the configuration
+
+Use the `Datalogix\Sensible\Concerns\ReadsConfiguration` trait to toggle your configurable from `config/sensible.php`, under its class name, with the same boolean-like values as the built-in ones:
+
+```php
+use Datalogix\Sensible\Concerns\ReadsConfiguration;
+use Datalogix\Sensible\Contracts\Configurable;
+use Illuminate\Support\Facades\Schema;
+
+class DefaultStringLength implements Configurable
+{
+    use ReadsConfiguration;
+
+    public function enabled(): bool
+    {
+        return $this->configEnabled();
+    }
+
+    public function configure(): void
+    {
+        Schema::defaultStringLength(191);
+    }
+}
+```
+
+```php
+// config/sensible.php
+
+return [
+    DefaultStringLength::class => env('SENSIBLE_DEFAULT_STRING_LENGTH', true),
+    // other configurables...
+];
+```
+
+A missing value disables the configurable. `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
