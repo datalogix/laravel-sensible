@@ -45,17 +45,18 @@ class SensibleManager
             return;
         }
 
-        $class = $this->classOf($configurable);
+        $index = array_search(
+            strtolower($this->classOf($configurable)),
+            array_map(fn (string|Configurable $registered) => strtolower($this->classOf($registered)), $this->configurables),
+            true,
+        );
 
-        if (! in_array($class, array_map($this->classOf(...), $this->configurables), true)) {
+        if ($index === false) {
             $this->configurables[] = $configurable;
         } elseif (is_string($configurable)) {
             return;
         } else {
-            $this->configurables = array_map(
-                fn (string|Configurable $registered) => $this->classOf($registered) === $class ? $configurable : $registered,
-                $this->configurables,
-            );
+            array_splice($this->configurables, $index, 1, [$configurable]);
         }
 
         if ($this->ran) {

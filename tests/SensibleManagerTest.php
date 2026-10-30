@@ -56,6 +56,34 @@ test('register replaces an already registered class with the given instance', fu
     expect($instance->configured)->toBeTrue();
 });
 
+test('register ignores a duplicate with a different case', function () {
+    $mock = $this->mock(TestConfigurable::class);
+    $mock->shouldReceive('enabled')->once()->andReturn(true);
+    $mock->shouldReceive('configure')->once();
+
+    app()->instance(strtolower(TestConfigurable::class), $mock);
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register(TestConfigurable::class);
+    $sensibleManager->register(strtolower(TestConfigurable::class));
+    $sensibleManager->run();
+});
+
+test('register replaces a class registered with a different case', function () {
+    $mock = $this->mock(TestConfigurable::class);
+    $mock->shouldNotReceive('enabled');
+    app()->instance(strtolower(TestConfigurable::class), $mock);
+
+    $instance = new TestConfigurable;
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register(strtolower(TestConfigurable::class));
+    $sensibleManager->register($instance);
+    $sensibleManager->run();
+
+    expect($instance->configured)->toBeTrue();
+});
+
 test('register ignores a class name already registered as an instance', function () {
     $mock = $this->mock(TestConfigurable::class);
     $mock->shouldNotReceive('enabled');

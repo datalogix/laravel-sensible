@@ -7,6 +7,7 @@ use Datalogix\Sensible\Tests\Fixtures\AppServiceProviderTestCase;
 use Datalogix\Sensible\Tests\Fixtures\BootRegisteredConfigurable;
 use Datalogix\Sensible\Tests\Fixtures\RegisterRegisteredConfigurable;
 use Illuminate\Support\ServiceProvider;
+use Mockery\MockInterface;
 
 uses(AppServiceProviderTestCase::class);
 
@@ -21,6 +22,14 @@ test('runs configurables registered in application boot', function () {
 test('alias and facade resolve the same singleton', function () {
     expect(app('sensible'))->toBe(app(SensibleManager::class))
         ->and(Sensible::getFacadeRoot())->toBe(app(SensibleManager::class));
+});
+
+test('runs the manager the facade resolves', function () {
+    Sensible::swap(Mockery::mock(SensibleManager::class, function (MockInterface $mock) {
+        $mock->shouldReceive('run')->once();
+    }));
+
+    (new SensibleServiceProvider($this->app))->boot();
 });
 
 test('publishes the config file', function (string $tag) {
