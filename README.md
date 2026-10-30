@@ -72,7 +72,7 @@ Each feature can also be toggled through an environment variable. Values such as
 | Strict Models                       | `SENSIBLE_SHOULD_BE_STRICT`                       | `true` outside production |
 | Unguarded Models                    | `SENSIBLE_UNGUARD`                                | `false`                   |
 
-"In production" means `app()->isProduction()` when the configurables run (after the application boots), so the `--env=` Artisan option is respected. Setting the `SENSIBLE_*` variable overrides the environment-based default.
+"In production" means `app()->isProduction()` when the configurables run (after the application boots), so the `--env=` Artisan option is respected. Setting the `SENSIBLE_*` variable overrides the environment-based default. Leave it unset (or remove it) to keep that default: an empty value such as `SENSIBLE_FORCE_SCHEME=` counts as false and disables the feature.
 
 ### Password policies
 
@@ -129,7 +129,7 @@ public function boot(): void
 
 `register()` accepts a class name (resolved through the container) or an instance. Classes that don't implement `Configurable` throw an `InvalidArgumentException`.
 
-Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class name twice has no effect. Registering an instance replaces the configurable of the same class, including a built-in one (e.g. a pre-configured `new ForceScheme`).
+Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class name twice has no effect. Registering an instance replaces the configurable of the exact same class, including a built-in one (e.g. a pre-configured `new ForceScheme`); registering the same instance again has no effect. Matching is by exact class: a subclass of a built-in is added alongside it, so both run, and it reads the configuration under its own class name. Disable the built-in in `config/sensible.php` if only yours should run. If the configurables have already run, the replacement is applied on top of the previous one; the previous configurable's effects are not undone.
 
 ### Reading the configuration
 
@@ -171,7 +171,24 @@ return [
 ];
 ```
 
-The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently disables it. `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
+The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
+
+`configEnabled()` accepts a default used when the value is not set (`null`), which lets your configurable depend on the environment like the built-in ones:
+
+```php
+public function enabled(): bool
+{
+    return $this->configEnabled(default: app()->isLocal());
+}
+```
+
+```php
+// config/sensible.php
+
+DefaultStringLength::class => env('SENSIBLE_DEFAULT_STRING_LENGTH'),
+```
+
+Don't call `app()` in `config/sensible.php`: the published config is loaded before the environment is detected.
 
 ## License
 

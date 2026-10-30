@@ -11,6 +11,10 @@ use Datalogix\Sensible\Configurables\SetDefaultPassword;
 use Datalogix\Sensible\Configurables\ShouldBeStrict;
 use Datalogix\Sensible\Configurables\Unguard;
 
+/*
+ * Entries without a default (null) resolve it from the environment when the configurables run.
+ * Leave their SENSIBLE_* variable unset to keep that default; an empty value (e.g. SENSIBLE_FORCE_SCHEME=) disables the configurable.
+ */
 return [
     /**
      * 🚀 Asset Prefetching.

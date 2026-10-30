@@ -17,9 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `SensibleManager` throws an `InvalidArgumentException` when the container resolves a registered class to something that is not a `Configurable`, instead of a fatal error.
-- Environment-dependent defaults (`ForceScheme`, `ProhibitDestructiveCommands`, `SetDefaultPassword`, `ShouldBeStrict`) are `null` in the config and resolved with `app()->isProduction()` when the configurables run.
-- `SensibleManager::register()` with an instance replaces an already registered configurable of the same class (including built-ins) instead of silently ignoring it.
-- `ReadsConfiguration::configEnabled()` accepts a `$default` used when the configuration value is not set.
+- Environment-dependent defaults (`ForceScheme`, `ProhibitDestructiveCommands`, `SetDefaultPassword`, `ShouldBeStrict`) are `null` in the config and resolved with `app()->isProduction()` when the configurables run; an empty env value disables them.
+- `SensibleManager::register()` with an instance replaces an already registered configurable of the exact same class (including built-ins; subclasses are added alongside) instead of silently ignoring it.
+- `ReadsConfiguration::configEnabled(bool $default = false)` accepts a default used when the configuration value is not set (`null`).
 - Tests migrated to Pest, Larastan added at level max, and `composer lint` now only checks (`composer format` formats).
 - CI migrated to `datalogix/workflows` `package.yml@v2`.
 - License holder is now Datalogix.
