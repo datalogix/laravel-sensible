@@ -15,13 +15,13 @@ test('configure', function () {
     Sleep::assertSleptTimes(1);
 });
 
-test('is disabled by default', function () {
+test('is disabled outside unit tests by default', function () {
     $fakeSleep = new FakeSleep;
 
     expect($fakeSleep->enabled())->toBeFalse();
 });
 
-test('can be enabled ignored as not during testing', function () {
+test('stays disabled outside unit tests', function () {
     config()->set('sensible.'.FakeSleep::class, true);
 
     $fakeSleep = new FakeSleep;
@@ -29,7 +29,7 @@ test('can be enabled ignored as not during testing', function () {
     expect($fakeSleep->enabled())->toBeFalse();
 });
 
-test('can be enabled when during testing', function () {
+test('is enabled when running unit tests', function () {
     config()->set('sensible.'.FakeSleep::class, true);
     app()->detectEnvironment(fn (): string => 'testing');
 

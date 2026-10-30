@@ -9,121 +9,116 @@ beforeEach(function () {
     Password::$defaultCallback = null;
 });
 
-test('configure', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+describe('applied rules', function () {
+    beforeEach(function () {
+        $this->markTestSkippedUnless(
+            method_exists(Password::class, 'appliedRules'),
+            'The appliedRules method is not available in this version of Laravel.'
+        );
+    });
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+    test('configure', function () {
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-    $passwordRules = Password::default()->appliedRules();
+        $passwordRules = Password::default()->appliedRules();
 
-    expect(8)->toEqual($passwordRules['min']);
-    expect($passwordRules['max'])->toBeNull();
-    expect($passwordRules['mixedCase'])->toBeTrue();
-    expect($passwordRules['numbers'])->toBeTrue();
-    expect($passwordRules['symbols'])->toBeTrue();
-    expect($passwordRules['uncompromised'])->toBeTrue();
-});
+        expect($passwordRules['min'])->toBe(8);
+        expect($passwordRules['max'])->toBeNull();
+        expect($passwordRules['mixedCase'])->toBeTrue();
+        expect($passwordRules['numbers'])->toBeTrue();
+        expect($passwordRules['symbols'])->toBeTrue();
+        expect($passwordRules['uncompromised'])->toBeTrue();
+    });
 
-test('configure simple', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+    test('configure simple', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'simple');
 
-    config()->set('sensible.'.SetDefaultPassword::class, 'simple');
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+        $passwordRules = Password::default()->appliedRules();
 
-    $passwordRules = Password::default()->appliedRules();
+        expect($passwordRules['min'])->toBe(6);
+        expect($passwordRules['mixedCase'])->toBeFalse();
+        expect($passwordRules['letters'])->toBeFalse();
+        expect($passwordRules['numbers'])->toBeFalse();
+        expect($passwordRules['symbols'])->toBeFalse();
+        expect($passwordRules['uncompromised'])->toBeFalse();
+    });
 
-    expect(6)->toEqual($passwordRules['min']);
-    expect($passwordRules['mixedCase'])->toBeFalse();
-    expect($passwordRules['letters'])->toBeFalse();
-    expect($passwordRules['numbers'])->toBeFalse();
-    expect($passwordRules['symbols'])->toBeFalse();
-    expect($passwordRules['uncompromised'])->toBeFalse();
-});
+    test('configure numeric', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'numeric');
 
-test('configure numeric', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-    config()->set('sensible.'.SetDefaultPassword::class, 'numeric');
+        $passwordRules = Password::default()->appliedRules();
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+        expect($passwordRules['min'])->toBe(4);
+        expect($passwordRules['customRules'])->toBe(['digits_between:4,6']);
+    });
 
-    $passwordRules = Password::default()->appliedRules();
+    test('configure pin', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'pin');
 
-    expect(4)->toEqual($passwordRules['min']);
-    expect($passwordRules['customRules'])->toBe(['digits_between:4,6']);
-});
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-test('configure pin', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+        $passwordRules = Password::default()->appliedRules();
 
-    config()->set('sensible.'.SetDefaultPassword::class, 'pin');
+        expect($passwordRules['min'])->toBe(4);
+        expect($passwordRules['customRules'])->toBe(['digits:4']);
+    });
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+    test('configure passphrase', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'passphrase');
 
-    $passwordRules = Password::default()->appliedRules();
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-    expect(4)->toEqual($passwordRules['min']);
-    expect($passwordRules['customRules'])->toBe(['digits:4']);
-});
+        $passwordRules = Password::default()->appliedRules();
 
-test('configure passphrase', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+        expect($passwordRules['min'])->toBe(16);
+        expect($passwordRules['mixedCase'])->toBeFalse();
+        expect($passwordRules['letters'])->toBeFalse();
+        expect($passwordRules['numbers'])->toBeFalse();
+        expect($passwordRules['symbols'])->toBeFalse();
+        expect($passwordRules['uncompromised'])->toBeFalse();
+    });
 
-    config()->set('sensible.'.SetDefaultPassword::class, 'passphrase');
+    test('configure alphanumeric', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'alphanumeric');
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+        $setDefaultPassword = new SetDefaultPassword;
+        $setDefaultPassword->configure();
 
-    $passwordRules = Password::default()->appliedRules();
+        $passwordRules = Password::default()->appliedRules();
 
-    expect(16)->toEqual($passwordRules['min']);
-    expect($passwordRules['mixedCase'])->toBeFalse();
-    expect($passwordRules['letters'])->toBeFalse();
-    expect($passwordRules['numbers'])->toBeFalse();
-    expect($passwordRules['symbols'])->toBeFalse();
-    expect($passwordRules['uncompromised'])->toBeFalse();
-});
+        expect($passwordRules['min'])->toBe(8);
+        expect($passwordRules['max'])->toBeNull();
+        expect($passwordRules['letters'])->toBeTrue();
+        expect($passwordRules['numbers'])->toBeTrue();
+        expect($passwordRules['mixedCase'])->toBeFalse();
+        expect($passwordRules['symbols'])->toBeFalse();
+        expect($passwordRules['uncompromised'])->toBeFalse();
+    });
 
-test('configure alphanumeric', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
+    test('configure is case insensitive', function () {
+        config()->set('sensible.'.SetDefaultPassword::class, 'PIN');
 
-    config()->set('sensible.'.SetDefaultPassword::class, 'alphanumeric');
+        (new SetDefaultPassword)->configure();
 
-    $setDefaultPassword = new SetDefaultPassword;
-    $setDefaultPassword->configure();
+        expect(Password::default()->appliedRules()['customRules'])->toBe(['digits:4']);
+    });
 
-    $passwordRules = Password::default()->appliedRules();
+    test('complex skips breach check during tests', function () {
+        app()->detectEnvironment(fn (): string => 'testing');
 
-    expect(8)->toEqual($passwordRules['min']);
-    expect($passwordRules['max'])->toBeNull();
-    expect($passwordRules['letters'])->toBeTrue();
-    expect($passwordRules['numbers'])->toBeTrue();
-    expect($passwordRules['mixedCase'])->toBeFalse();
-    expect($passwordRules['symbols'])->toBeFalse();
-    expect($passwordRules['uncompromised'])->toBeFalse();
+        (new SetDefaultPassword)->configure();
+
+        expect(Password::default()->appliedRules()['uncompromised'])->toBeFalse();
+    });
 });
 
 test('is enabled by default', function () {
@@ -180,20 +175,10 @@ test('throws on invalid type', function () {
     config()->set('sensible.'.SetDefaultPassword::class, 'simpel');
 
     $this->expectException(InvalidArgumentException::class);
-    $this->expectExceptionMessage('must be a boolean or one of [simple, numeric, pin, passphrase, alphanumeric, complex]');
+    $this->expectExceptionMessage(sprintf(
+        "Configuration value for key [sensible.%s] must be a boolean or one of [simple, numeric, pin, passphrase, alphanumeric, complex], ['simpel'] given.",
+        SetDefaultPassword::class,
+    ));
 
     (new SetDefaultPassword)->enabled();
-});
-
-test('complex skips breach check during tests', function () {
-    $this->markTestSkippedUnless(
-        method_exists(Password::class, 'appliedRules'),
-        'The appliedRules method is not available in this version of Laravel.'
-    );
-
-    app()->detectEnvironment(fn (): string => 'testing');
-
-    (new SetDefaultPassword)->configure();
-
-    expect(Password::default()->appliedRules()['uncompromised'])->toBeFalse();
 });

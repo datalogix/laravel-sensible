@@ -11,7 +11,9 @@ test('configure', function () {
     $prohibitDestructiveCommands = new ProhibitDestructiveCommands;
     $prohibitDestructiveCommands->configure();
 
-    $this->artisan('migrate:fresh')->assertFailed();
+    $this->artisan('migrate:fresh')
+        ->expectsOutputToContain('prohibited')
+        ->assertFailed();
 });
 
 test('is enabled by default', function () {

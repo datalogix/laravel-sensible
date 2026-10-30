@@ -7,16 +7,7 @@ beforeEach(function () {
     URL::forceScheme(null);
 });
 
-test('configure forces https in production', function () {
-    $forceScheme = new ForceScheme;
-    $forceScheme->configure();
-
-    expect(URL::to('/test'))->toStartWith('https://');
-});
-
-test('configure forces https outside production when enabled', function () {
-    app()->detectEnvironment(fn (): string => 'local');
-
+test('configure forces https', function () {
     $forceScheme = new ForceScheme;
     $forceScheme->configure();
 
@@ -24,6 +15,15 @@ test('configure forces https outside production when enabled', function () {
 });
 
 test('is enabled by default', function () {
+    $forceScheme = new ForceScheme;
+
+    expect($forceScheme->enabled())->toBeTrue();
+});
+
+test('can be enabled outside production', function () {
+    config()->set('sensible.'.ForceScheme::class, true);
+    app()->detectEnvironment(fn (): string => 'local');
+
     $forceScheme = new ForceScheme;
 
     expect($forceScheme->enabled())->toBeTrue();
@@ -37,24 +37,24 @@ test('can be disabled', function () {
     expect($forceScheme->enabled())->toBeFalse();
 });
 
-test('accepts boolean like strings', function () {
-    $forceScheme = new ForceScheme;
+test('accepts boolean like strings', function (string $value, bool $expected) {
+    config()->set('sensible.'.ForceScheme::class, $value);
 
-    foreach (['1', 'on', 'yes', 'true'] as $value) {
-        config()->set('sensible.'.ForceScheme::class, $value);
-        expect($forceScheme->enabled())->toBeTrue($value);
-    }
-
-    foreach (['0', 'off', 'no', 'false', ''] as $value) {
-        config()->set('sensible.'.ForceScheme::class, $value);
-        expect($forceScheme->enabled())->toBeFalse($value);
-    }
-});
+    expect((new ForceScheme)->enabled())->toBe($expected);
+})->with([
+    ['1', true],
+    ['on', true],
+    ['yes', true],
+    ['true', true],
+    ['0', false],
+    ['off', false],
+    ['no', false],
+    ['false', false],
+    ['', false],
+]);
 
 test('throws on invalid value', function () {
     config()->set('sensible.'.ForceScheme::class, 'banana');
 
-    $this->expectException(InvalidArgumentException::class);
-
     (new ForceScheme)->enabled();
-});
+})->throws(InvalidArgumentException::class);

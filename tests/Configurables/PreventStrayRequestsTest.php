@@ -14,13 +14,13 @@ test('configure', function () {
     expect(Http::preventingStrayRequests())->toBeTrue();
 });
 
-test('is disabled by default', function () {
+test('is disabled outside unit tests by default', function () {
     $preventStrayRequests = new PreventStrayRequests;
 
     expect($preventStrayRequests->enabled())->toBeFalse();
 });
 
-test('can be enabled ignored as not during testing', function () {
+test('stays disabled outside unit tests', function () {
     config()->set('sensible.'.PreventStrayRequests::class, true);
 
     $preventStrayRequests = new PreventStrayRequests;
@@ -28,7 +28,7 @@ test('can be enabled ignored as not during testing', function () {
     expect($preventStrayRequests->enabled())->toBeFalse();
 });
 
-test('can be enabled when during testing', function () {
+test('is enabled when running unit tests', function () {
     config()->set('sensible.'.PreventStrayRequests::class, true);
     app()->detectEnvironment(fn (): string => 'testing');
 
