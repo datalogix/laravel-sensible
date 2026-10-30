@@ -32,6 +32,8 @@ class SensibleManager
 
     /**
      * Register a new configurable class.
+     *
+     * An instance replaces an already registered configurable of the same class.
      */
     public function register(string|Configurable $configurable): void
     {
@@ -39,11 +41,18 @@ class SensibleManager
             throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
         }
 
-        if (in_array($this->classOf($configurable), array_map($this->classOf(...), $this->configurables), true)) {
-            return;
-        }
+        $class = $this->classOf($configurable);
 
-        $this->configurables[] = $configurable;
+        if (! in_array($class, array_map($this->classOf(...), $this->configurables), true)) {
+            $this->configurables[] = $configurable;
+        } elseif (is_string($configurable)) {
+            return;
+        } else {
+            $this->configurables = array_map(
+                fn (string|Configurable $registered) => $this->classOf($registered) === $class ? $configurable : $registered,
+                $this->configurables,
+            );
+        }
 
         if ($this->ran) {
             $this->apply($configurable);

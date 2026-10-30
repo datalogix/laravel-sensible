@@ -41,10 +41,10 @@ test('register ignores a duplicate with a leading backslash', function () {
     $sensibleManager->run();
 });
 
-test('register ignores an instance of an already registered class', function () {
+test('register replaces an already registered class with the given instance', function () {
     $mock = $this->mock(TestConfigurable::class);
-    $mock->shouldReceive('enabled')->once()->andReturn(true);
-    $mock->shouldReceive('configure')->once();
+    $mock->shouldNotReceive('enabled');
+    $mock->shouldNotReceive('configure');
 
     $instance = new TestConfigurable;
 
@@ -53,7 +53,32 @@ test('register ignores an instance of an already registered class', function () 
     $sensibleManager->register($instance);
     $sensibleManager->run();
 
-    expect($instance->configured)->toBeFalse();
+    expect($instance->configured)->toBeTrue();
+});
+
+test('register ignores a class name already registered as an instance', function () {
+    $mock = $this->mock(TestConfigurable::class);
+    $mock->shouldNotReceive('enabled');
+
+    $instance = new TestConfigurable;
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($instance);
+    $sensibleManager->register(TestConfigurable::class);
+    $sensibleManager->run();
+
+    expect($instance->configured)->toBeTrue();
+});
+
+test('register an instance after run applies it immediately', function () {
+    $instance = new TestConfigurable;
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register(TestConfigurable::class);
+    $sensibleManager->run();
+    $sensibleManager->register($instance);
+
+    expect($instance->configured)->toBeTrue();
 });
 
 test('register after run applies immediately', function () {

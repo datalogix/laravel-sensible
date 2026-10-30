@@ -129,7 +129,7 @@ public function boot(): void
 
 `register()` accepts a class name (resolved through the container) or an instance. Classes that don't implement `Configurable` throw an `InvalidArgumentException`.
 
-Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class twice has no effect.
+Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class name twice has no effect. Registering an instance replaces the configurable of the same class, including a built-in one (e.g. a pre-configured `new ForceScheme`).
 
 ### Reading the configuration
 
