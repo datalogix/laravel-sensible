@@ -29,3 +29,22 @@ test('environment dependent defaults are resolved at runtime', function (string 
     SetDefaultPassword::class,
     ShouldBeStrict::class,
 ]);
+
+test('environment dependent entries read their env variable', function (string $configurable, string $variable) {
+    $original = getenv($variable);
+
+    try {
+        putenv($variable);
+        expect((require __DIR__.'/../config/sensible.php')[$configurable])->toBeNull();
+
+        putenv("{$variable}=false");
+        expect((require __DIR__.'/../config/sensible.php')[$configurable])->toBeFalse();
+    } finally {
+        putenv($original === false ? $variable : "{$variable}={$original}");
+    }
+})->with([
+    [ForceScheme::class, 'SENSIBLE_FORCE_SCHEME'],
+    [ProhibitDestructiveCommands::class, 'SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS'],
+    [SetDefaultPassword::class, 'SENSIBLE_SET_DEFAULT_PASSWORD'],
+    [ShouldBeStrict::class, 'SENSIBLE_SHOULD_BE_STRICT'],
+]);
