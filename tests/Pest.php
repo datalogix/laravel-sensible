@@ -2,4 +2,4 @@
 
 use Datalogix\Sensible\Tests\TestCase;
 
-pest()->extend(TestCase::class)->in('Configurables', 'SensibleManagerTest.php');
+pest()->extend(TestCase::class)->in('Concerns', 'Configurables', 'SensibleManagerTest.php');

@@ -27,11 +27,13 @@ trait ReadsConfiguration
      */
     protected function configEnabled(): bool
     {
-        return $this->toBoolean($this->configValue())
+        $value = $this->configValue();
+
+        return $this->toBoolean($value)
             ?? throw new InvalidArgumentException(sprintf(
                 'Configuration value for key [%s] must be a boolean, [%s] given.',
                 $this->configKey(),
-                var_export($this->configValue(), true),
+                var_export($value, true),
             ));
     }
 
