@@ -81,6 +81,32 @@ test('register an instance after run applies it immediately', function () {
     expect($instance->configured)->toBeTrue();
 });
 
+test('register replaces an instance with a later instance of the same class', function () {
+    $first = new TestConfigurable;
+    $second = new TestConfigurable;
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($first);
+    $sensibleManager->register($second);
+    $sensibleManager->run();
+
+    expect($first->configured)->toBeFalse()
+        ->and($second->configured)->toBeTrue();
+});
+
+test('register the same instance after run does not configure it again', function () {
+    $instance = new TestConfigurable;
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($instance);
+    $sensibleManager->run();
+
+    $instance->configured = false;
+    $sensibleManager->register($instance);
+
+    expect($instance->configured)->toBeFalse();
+});
+
 test('register after run applies immediately', function () {
     $sensibleManager = new SensibleManager;
     $sensibleManager->run();

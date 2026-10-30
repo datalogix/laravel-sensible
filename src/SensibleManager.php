@@ -41,6 +41,10 @@ class SensibleManager
             throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
         }
 
+        if (in_array($configurable, $this->configurables, true)) {
+            return;
+        }
+
         $class = $this->classOf($configurable);
 
         if (! in_array($class, array_map($this->classOf(...), $this->configurables), true)) {
