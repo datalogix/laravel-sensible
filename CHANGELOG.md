@@ -35,3 +35,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Upgrading
 
 - If you published `config/sensible.php` before this release, it still calls `app()->isProduction()` and keeps crashing. Republish it with `php artisan vendor:publish --tag="sensible-config" --force`, or replace each `app()->isProduction()` default with `null` (e.g. `env('SENSIBLE_FORCE_SCHEME')`).
+- If you override `configEnabled()` in a subclass of a class using `ReadsConfiguration` (including the built-in configurables), add the new parameter: `protected function configEnabled(bool $default = false): bool`.

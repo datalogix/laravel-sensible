@@ -27,6 +27,25 @@ test('ignores the default when the config value is set', function () {
     expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeFalse();
 });
 
+test('uses the default when the config value is null', function () {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, null);
+
+    expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeTrue();
+});
+
+test('string values override the default', function (string $value) {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, $value);
+
+    expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeFalse();
+})->with(['0', 'off', 'no', 'false']);
+
+test('still throws on invalid values when a default is given', function () {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, 'banana');
+
+    expect(fn () => (new ReadsConfigurationConfigurable)->isEnabled(default: true))
+        ->toThrow(InvalidArgumentException::class);
+});
+
 test('accepts native booleans and integers', function (mixed $value, bool $expected) {
     config()->set('sensible.'.ReadsConfigurationConfigurable::class, $value);
 
