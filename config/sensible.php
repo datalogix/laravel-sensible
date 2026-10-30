@@ -41,7 +41,7 @@ return [
      * 🔒 Force HTTPS.
      *
      * Forces all generated URLs to use `https://`.
-     * Recommended in production to ensure secure connections; enabled by default in production.
+     * Enabled by default in production.
      */
     ForceScheme::class => env('SENSIBLE_FORCE_SCHEME'),
 
@@ -64,8 +64,9 @@ return [
     /**
      * 🛑 Safe Console.
      *
-     * Blocks destructive database commands (e.g., `migrate:fresh`) when enabled; enabled by default in production.
+     * Blocks destructive database commands (e.g., `migrate:fresh`).
      * Adds a layer of safety in critical environments.
+     * Enabled by default in production.
      */
     ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS'),
 
@@ -73,8 +74,7 @@ return [
      * 🔑 Set Default Password Strategy.
      *
      * Sets the rules returned by `Password::defaults()` in validation (e.g. registration and password reset).
-     * Accepts `true`/`false` to enable/disable (defaults to the "complex" policy), or one of
-     * the `PasswordType` values below:
+     * Accepts `true` (the "complex" policy) or `false`, or one of the `PasswordType` values below:
      * - `simple`       – Minimum length of 6 characters only, no other requirements.
      * - `numeric`      – Digits only, 4 to 6 digits.
      * - `pin`          – Digits only, exactly 4 digits.
@@ -85,7 +85,7 @@ return [
      *   The breach check is skipped in tests, since it calls an external API.
      *
      * Any other value throws an exception, so typos don't silently change the policy.
-     * When not set, the "complex" policy is applied in production only.
+     * Enabled by default in production, with the "complex" policy.
      */
     SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD'),
 
@@ -96,6 +96,7 @@ return [
      * - Accessing missing attributes throws exceptions.
      * - Lazy loading relationships throws an exception.
      * - Mass assigning non-fillable attributes throws instead of silently discarding them.
+     *
      * Enabled by default outside production.
      */
     ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT'),
