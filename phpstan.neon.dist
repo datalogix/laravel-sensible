@@ -1,0 +1,16 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - config
+        - src
+    configDirectories:
+        - config
+    ignoreErrors:
+        # Model::automaticallyEagerLoadRelationships() only exists since Laravel 12.8.
+        -
+            identifier: function.alreadyNarrowedType
+            path: src/Configurables/AutomaticallyEagerLoadRelationships.php
+            reportUnmatched: false

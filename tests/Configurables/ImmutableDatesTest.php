@@ -1,41 +1,30 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Carbon\Carbon;
 use Datalogix\Sensible\Configurables\ImmutableDates;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Support\Facades\Date;
 
-class ImmutableDatesTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Date::use(Carbon::class);
-    }
+beforeEach(function () {
+    Date::use(Carbon::class);
+});
 
-    public function test_configure()
-    {
-        $immutableDates = new ImmutableDates;
-        $immutableDates->configure();
+test('configure', function () {
+    $immutableDates = new ImmutableDates;
+    $immutableDates->configure();
 
-        $this->assertTrue(now()->isImmutable());
-    }
+    expect(now()->isImmutable())->toBeTrue();
+});
 
-    public function test_is_enabled_by_default()
-    {
-        $immutableDates = new ImmutableDates;
+test('is enabled by default', function () {
+    $immutableDates = new ImmutableDates;
 
-        $this->assertTrue($immutableDates->enabled());
-    }
+    expect($immutableDates->enabled())->toBeTrue();
+});
 
-    public function test_can_be_disabled()
-    {
-        config()->set('sensible.'.ImmutableDates::class, false);
+test('can be disabled', function () {
+    config()->set('sensible.'.ImmutableDates::class, false);
 
-        $immutableDates = new ImmutableDates;
+    $immutableDates = new ImmutableDates;
 
-        $this->assertFalse($immutableDates->enabled());
-    }
-}
+    expect($immutableDates->enabled())->toBeFalse();
+});

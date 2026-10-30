@@ -1,51 +1,39 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Datalogix\Sensible\Configurables\FakeSleep;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Support\Sleep;
 
-class FakeSleepTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Sleep::fake(false);
-    }
+beforeEach(function () {
+    Sleep::fake(false);
+});
 
-    public function test_configure()
-    {
-        $fakeSleep = new FakeSleep;
-        $fakeSleep->configure();
+test('configure', function () {
+    $fakeSleep = new FakeSleep;
+    $fakeSleep->configure();
 
-        Sleep::usleep(1);
-        Sleep::assertSleptTimes(1);
-    }
+    Sleep::usleep(1);
+    Sleep::assertSleptTimes(1);
+});
 
-    public function test_is_disabled_by_default()
-    {
-        $fakeSleep = new FakeSleep;
+test('is disabled by default', function () {
+    $fakeSleep = new FakeSleep;
 
-        $this->assertFalse($fakeSleep->enabled());
-    }
+    expect($fakeSleep->enabled())->toBeFalse();
+});
 
-    public function test_can_be_enabled_ignored_as_not_during_testing()
-    {
-        config()->set('sensible.'.FakeSleep::class, true);
+test('can be enabled ignored as not during testing', function () {
+    config()->set('sensible.'.FakeSleep::class, true);
 
-        $fakeSleep = new FakeSleep;
+    $fakeSleep = new FakeSleep;
 
-        $this->assertFalse($fakeSleep->enabled());
-    }
+    expect($fakeSleep->enabled())->toBeFalse();
+});
 
-    public function test_can_be_enabled_when_during_testing()
-    {
-        config()->set('sensible.'.FakeSleep::class, true);
-        app()->detectEnvironment(fn (): string => 'testing');
+test('can be enabled when during testing', function () {
+    config()->set('sensible.'.FakeSleep::class, true);
+    app()->detectEnvironment(fn (): string => 'testing');
 
-        $fakeSleep = new FakeSleep;
+    $fakeSleep = new FakeSleep;
 
-        $this->assertTrue($fakeSleep->enabled());
-    }
-}
+    expect($fakeSleep->enabled())->toBeTrue();
+});
