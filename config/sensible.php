@@ -15,7 +15,7 @@ return [
     /**
      * 🚀 Asset Prefetching.
      *
-     * Configures Laravel Vite to preload assets more aggressively.
+     * Prefetches all Vite assets eagerly after the page loads.
      * Improves front-end load times and user experience.
      */
     AggressivePrefetching::class => env('SENSIBLE_AGGRESSIVE_PREFETCHING', true),
@@ -43,7 +43,7 @@ return [
      * Forces all generated URLs to use `https://`.
      * Recommended in production to ensure secure connections.
      */
-    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME', app()->isProduction()),
+    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME', env('APP_ENV', 'production') === 'production'),
 
     /**
      * 🕒 Immutable Dates.
@@ -64,15 +64,15 @@ return [
     /**
      * 🛑 Safe Console.
      *
-     * Blocks potentially dangerous Artisan commands (e.g., `migrate:fresh`) in production.
+     * Blocks destructive database commands (e.g., `migrate:fresh`) when enabled; enabled by default in production.
      * Adds a layer of safety in critical environments.
      */
-    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS', app()->isProduction()),
+    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS', env('APP_ENV', 'production') === 'production'),
 
     /**
      * 🔑 Set Default Password Strategy.
      *
-     * Configures a default password policy to enforce when creating or seeding users.
+     * Sets the rules returned by `Password::defaults()` in validation (e.g. registration and password reset).
      * Accepts `true`/`false` to enable/disable (defaults to the "complex" policy), or one of
      * the `PasswordType` values below:
      * - `simple`       – Minimum length of 6 characters only, no other requirements.
@@ -86,17 +86,17 @@ return [
      *
      * Any other value throws an exception, so typos don't silently change the policy.
      */
-    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', app()->isProduction()),
+    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', env('APP_ENV', 'production') === 'production'),
 
     /**
      * ✅ Strict Models.
      *
      * Enforces strict handling of attributes in Eloquent:
      * - Accessing missing attributes throws exceptions.
-     * - Lazy loading is disabled by default.
-     * - Assigning undefined attributes is not allowed.
+     * - Lazy loading relationships throws an exception.
+     * - Mass assigning non-fillable attributes throws instead of silently discarding them.
      */
-    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT', ! app()->isProduction()),
+    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT', env('APP_ENV', 'production') !== 'production'),
 
     /**
      * 🔓 Optional Unguarded Models.
