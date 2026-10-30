@@ -3,6 +3,7 @@
 namespace Datalogix\Sensible;
 
 use Datalogix\Sensible\Contracts\Configurable;
+use InvalidArgumentException;
 
 class SensibleManager
 {
@@ -35,7 +36,7 @@ class SensibleManager
     public function register(string|Configurable $configurable): void
     {
         if (is_string($configurable) && ! is_subclass_of($configurable, Configurable::class)) {
-            throw new \InvalidArgumentException("{$configurable} must implement ".Configurable::class);
+            throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
         }
 
         if (in_array($this->classOf($configurable), array_map($this->classOf(...), $this->configurables), true)) {
@@ -65,7 +66,7 @@ class SensibleManager
      * Get the class name of the given configurable.
      *
      * @param  class-string<Configurable>|Configurable  $configurable
-     * @return class-string<Configurable>
+     * @return class-string
      */
     protected function classOf(string|Configurable $configurable): string
     {
@@ -79,12 +80,14 @@ class SensibleManager
      */
     protected function apply(string|Configurable $configurable): void
     {
-        if (is_string($configurable)) {
-            $configurable = app($configurable);
+        $instance = is_string($configurable) ? app($configurable) : $configurable;
+
+        if (! $instance instanceof Configurable) {
+            throw new InvalidArgumentException($this->classOf($configurable).' must resolve to an instance of '.Configurable::class);
         }
 
-        if ($configurable->enabled()) {
-            $configurable->configure();
+        if ($instance->enabled()) {
+            $instance->configure();
         }
     }
 }
