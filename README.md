@@ -94,6 +94,10 @@ In `config/sensible.php` you can also use the enum, e.g. `SetDefaultPassword::cl
 You can register your own configurables by implementing `Datalogix\Sensible\Contracts\Configurable`:
 
 ```php
+// app/Configurables/DefaultStringLength.php
+
+namespace App\Configurables;
+
 use Datalogix\Sensible\Contracts\Configurable;
 use Illuminate\Support\Facades\Schema;
 
@@ -114,6 +118,7 @@ class DefaultStringLength implements Configurable
 ```php
 // app/Providers/AppServiceProvider.php
 
+use App\Configurables\DefaultStringLength;
 use Datalogix\Sensible\Sensible;
 
 public function boot(): void
@@ -131,6 +136,10 @@ Configurables run once every service provider has booted, so registering them in
 Use the `Datalogix\Sensible\Concerns\ReadsConfiguration` trait to toggle your configurable from `config/sensible.php`, under its class name, with the same boolean-like values as the built-in ones:
 
 ```php
+// app/Configurables/DefaultStringLength.php
+
+namespace App\Configurables;
+
 use Datalogix\Sensible\Concerns\ReadsConfiguration;
 use Datalogix\Sensible\Contracts\Configurable;
 use Illuminate\Support\Facades\Schema;
@@ -154,13 +163,15 @@ class DefaultStringLength implements Configurable
 ```php
 // config/sensible.php
 
+use App\Configurables\DefaultStringLength;
+
 return [
     DefaultStringLength::class => env('SENSIBLE_DEFAULT_STRING_LENGTH', true),
     // other configurables...
 ];
 ```
 
-A missing value disables the configurable. `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
+The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently disables it. `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
 
 ## License
 
