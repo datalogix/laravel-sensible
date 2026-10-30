@@ -7,19 +7,6 @@ use Datalogix\Sensible\Configurables\ShouldBeStrict;
 use Illuminate\Container\Container;
 use Illuminate\Foundation\Application;
 
-function loadConfigWithAppEnv(?string $appEnv): array
-{
-    $original = getenv('APP_ENV');
-
-    putenv($appEnv === null ? 'APP_ENV' : "APP_ENV={$appEnv}");
-
-    try {
-        return require __DIR__.'/../config/sensible.php';
-    } finally {
-        putenv($original === false ? 'APP_ENV' : "APP_ENV={$original}");
-    }
-}
-
 test('loads before the environment is detected', function () {
     $container = Container::getInstance();
 
@@ -33,16 +20,12 @@ test('loads before the environment is detected', function () {
     }
 });
 
-test('environment dependent defaults', function (?string $appEnv, bool $production) {
-    $config = loadConfigWithAppEnv($appEnv);
-
-    expect($config[ForceScheme::class])->toBe($production)
-        ->and($config[ProhibitDestructiveCommands::class])->toBe($production)
-        ->and($config[SetDefaultPassword::class])->toBe($production)
-        ->and($config[ShouldBeStrict::class])->toBe(! $production);
+test('environment dependent defaults are resolved at runtime', function (string $configurable) {
+    // Null lets the configurable resolve its default from the detected environment.
+    expect((require __DIR__.'/../config/sensible.php')[$configurable])->toBeNull();
 })->with([
-    'production' => ['production', true],
-    'missing' => [null, true],
-    'local' => ['local', false],
-    'testing' => ['testing', false],
+    ForceScheme::class,
+    ProhibitDestructiveCommands::class,
+    SetDefaultPassword::class,
+    ShouldBeStrict::class,
 ]);

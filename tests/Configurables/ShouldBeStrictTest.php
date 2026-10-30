@@ -22,6 +22,14 @@ test('is disabled by default', function () {
     expect($shouldBeStrict->enabled())->toBeFalse();
 });
 
+test('is enabled by default outside production', function () {
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $shouldBeStrict = new ShouldBeStrict;
+
+    expect($shouldBeStrict->enabled())->toBeTrue();
+});
+
 test('can be enabled', function () {
     config()->set('sensible.'.ShouldBeStrict::class, true);
 

@@ -15,7 +15,7 @@ class ForceScheme implements Configurable
      */
     public function enabled(): bool
     {
-        return $this->configEnabled();
+        return $this->configEnabled(default: app()->isProduction());
     }
 
     /**

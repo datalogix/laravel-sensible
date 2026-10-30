@@ -41,9 +41,9 @@ return [
      * 🔒 Force HTTPS.
      *
      * Forces all generated URLs to use `https://`.
-     * Recommended in production to ensure secure connections.
+     * Recommended in production to ensure secure connections; enabled by default in production.
      */
-    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME', env('APP_ENV', 'production') === 'production'),
+    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME'),
 
     /**
      * 🕒 Immutable Dates.
@@ -67,7 +67,7 @@ return [
      * Blocks destructive database commands (e.g., `migrate:fresh`) when enabled; enabled by default in production.
      * Adds a layer of safety in critical environments.
      */
-    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS', env('APP_ENV', 'production') === 'production'),
+    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS'),
 
     /**
      * 🔑 Set Default Password Strategy.
@@ -85,8 +85,9 @@ return [
      *   The breach check is skipped in tests, since it calls an external API.
      *
      * Any other value throws an exception, so typos don't silently change the policy.
+     * When not set, the "complex" policy is applied in production only.
      */
-    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', env('APP_ENV', 'production') === 'production'),
+    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD'),
 
     /**
      * ✅ Strict Models.
@@ -95,8 +96,9 @@ return [
      * - Accessing missing attributes throws exceptions.
      * - Lazy loading relationships throws an exception.
      * - Mass assigning non-fillable attributes throws instead of silently discarding them.
+     * Enabled by default outside production.
      */
-    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT', env('APP_ENV', 'production') !== 'production'),
+    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT'),
 
     /**
      * 🔓 Optional Unguarded Models.

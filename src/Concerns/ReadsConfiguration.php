@@ -24,10 +24,16 @@ trait ReadsConfiguration
 
     /**
      * Whether the configuration value is truthy, accepting "1", "0", "on", "off", "yes" and "no".
+     *
+     * The given default is used when the value is not set (null).
      */
-    protected function configEnabled(): bool
+    protected function configEnabled(bool $default = false): bool
     {
         $value = $this->configValue();
+
+        if ($value === null) {
+            return $default;
+        }
 
         return $this->toBoolean($value)
             ?? throw $this->invalidConfigurationValue('a boolean', $value);

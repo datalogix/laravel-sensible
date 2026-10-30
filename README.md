@@ -72,7 +72,7 @@ Each feature can also be toggled through an environment variable. Values such as
 | Strict Models                       | `SENSIBLE_SHOULD_BE_STRICT`                       | `true` outside production |
 | Unguarded Models                    | `SENSIBLE_UNGUARD`                                | `false`                   |
 
-"In production" means `APP_ENV` is `production` or not set. It is read from the environment when the config loads, so the `--env=` Artisan option does not affect these defaults; set the `SENSIBLE_*` variable explicitly if needed.
+"In production" means `app()->isProduction()` when the configurables run (after the application boots), so the `--env=` Artisan option is respected. Setting the `SENSIBLE_*` variable overrides the environment-based default.
 
 ### Password policies
 

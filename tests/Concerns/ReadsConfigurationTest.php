@@ -17,6 +17,16 @@ test('is disabled when the config value is null', function () {
     expect((new ReadsConfigurationConfigurable)->isEnabled())->toBeFalse();
 });
 
+test('uses the default when the config value is not set', function () {
+    expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeTrue();
+});
+
+test('ignores the default when the config value is set', function () {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, false);
+
+    expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeFalse();
+});
+
 test('accepts native booleans and integers', function (mixed $value, bool $expected) {
     config()->set('sensible.'.ReadsConfigurationConfigurable::class, $value);
 

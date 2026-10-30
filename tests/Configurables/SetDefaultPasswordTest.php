@@ -127,6 +127,14 @@ test('is enabled by default', function () {
     expect($setDefaultPassword->enabled())->toBeTrue();
 });
 
+test('is disabled by default outside production', function () {
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $setDefaultPassword = new SetDefaultPassword;
+
+    expect($setDefaultPassword->enabled())->toBeFalse();
+});
+
 test('is enabled when a type is configured', function () {
     config()->set('sensible.'.SetDefaultPassword::class, 'simple');
 

@@ -20,6 +20,14 @@ test('is enabled by default', function () {
     expect($forceScheme->enabled())->toBeTrue();
 });
 
+test('is disabled by default outside production', function () {
+    app()->detectEnvironment(fn (): string => 'local');
+
+    $forceScheme = new ForceScheme;
+
+    expect($forceScheme->enabled())->toBeFalse();
+});
+
 test('can be enabled outside production', function () {
     config()->set('sensible.'.ForceScheme::class, true);
     app()->detectEnvironment(fn (): string => 'local');

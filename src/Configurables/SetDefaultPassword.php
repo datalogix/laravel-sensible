@@ -44,12 +44,13 @@ class SetDefaultPassword implements Configurable
      * The password type to apply, or null when disabled.
      *
      * Boolean-like values enable the "complex" type or disable the configurable.
+     * When not set, the "complex" type is applied in production only.
      *
      * @throws InvalidArgumentException
      */
     protected function type(): ?PasswordType
     {
-        $value = $this->configValue();
+        $value = $this->configValue() ?? app()->isProduction();
 
         if ($value instanceof PasswordType) {
             return $value;

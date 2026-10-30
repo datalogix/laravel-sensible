@@ -13,8 +13,8 @@ class ReadsConfigurationConfigurable
         return $this->configKey();
     }
 
-    public function isEnabled(): bool
+    public function isEnabled(bool $default = false): bool
     {
-        return $this->configEnabled();
+        return $this->configEnabled($default);
     }
 }

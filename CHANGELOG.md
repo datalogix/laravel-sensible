@@ -17,7 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `SensibleManager` throws an `InvalidArgumentException` when the container resolves a registered class to something that is not a `Configurable`, instead of a fatal error.
-- Environment-dependent defaults (`ForceScheme`, `ProhibitDestructiveCommands`, `SetDefaultPassword`, `ShouldBeStrict`) are read from `APP_ENV` (a missing value counts as production); the `--env=` Artisan option no longer affects them.
+- Environment-dependent defaults (`ForceScheme`, `ProhibitDestructiveCommands`, `SetDefaultPassword`, `ShouldBeStrict`) are `null` in the config and resolved with `app()->isProduction()` when the configurables run.
+- `ReadsConfiguration::configEnabled()` accepts a `$default` used when the configuration value is not set.
 - Tests migrated to Pest, Larastan added at level max, and `composer lint` now only checks (`composer format` formats).
 - CI migrated to `datalogix/workflows` `package.yml@v2`.
 - License holder is now Datalogix.
@@ -29,3 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - A published `config/sensible.php` no longer crashes the application boot and `php artisan config:cache` with `Target class [env] does not exist`.
+
+### Upgrading
+
+- If you published `config/sensible.php` before this release, it still calls `app()->isProduction()` and keeps crashing. Republish it with `php artisan vendor:publish --tag="sensible-config" --force`, or replace each `app()->isProduction()` default with `null` (e.g. `env('SENSIBLE_FORCE_SCHEME')`).
