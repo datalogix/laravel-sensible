@@ -34,3 +34,4 @@ Adding a built-in configurable means: class in `src/Configurables/`, entry in `S
 - Public API changes need a `@deprecated` alias until the next major.
 - The `config` publish tag is kept alongside `sensible-config` until v3.
 - Renaming `Configurable::enabled()` to `isEnabled()` is planned for v3 only.
+- Issues and pull requests: English
