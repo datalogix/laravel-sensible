@@ -5,6 +5,7 @@ namespace Datalogix\Sensible;
 use Datalogix\Sensible\Contracts\Configurable;
 use InvalidArgumentException;
 use ReflectionClass;
+use Throwable;
 
 class SensibleManager
 {
@@ -56,6 +57,8 @@ class SensibleManager
             true,
         );
 
+        $previous = $this->configurables;
+
         if ($index === false) {
             $this->configurables[] = $configurable;
         } elseif (is_string($configurable)) {
@@ -65,7 +68,13 @@ class SensibleManager
         }
 
         if ($this->ran) {
-            $this->apply($configurable);
+            try {
+                $this->apply($configurable);
+            } catch (Throwable $e) {
+                $this->configurables = $previous;
+
+                throw $e;
+            }
         }
     }
 

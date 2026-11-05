@@ -232,3 +232,20 @@ test('register during run applies immediately', function () {
 
     expect($instance->configured)->toBeTrue();
 });
+
+test('a registration that fails after run can be retried', function () {
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->run();
+
+    app()->bind(TestConfigurable::class, fn () => new stdClass);
+
+    expect(fn () => $sensibleManager->register(TestConfigurable::class))
+        ->toThrow(InvalidArgumentException::class);
+
+    $instance = new TestConfigurable;
+    app()->instance(TestConfigurable::class, $instance);
+
+    $sensibleManager->register(TestConfigurable::class);
+
+    expect($instance->configured)->toBeTrue();
+});
