@@ -13,8 +13,6 @@ Thumbs.db
 /.vscode/
 /.zed/
 
-/.claude/worktrees/
-
 /.phpunit.cache/
 /.phpunit.result.cache
 
