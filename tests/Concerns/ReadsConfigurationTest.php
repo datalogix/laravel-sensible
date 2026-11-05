@@ -46,6 +46,25 @@ test('still throws on invalid values when a default is given', function () {
         ->toThrow(InvalidArgumentException::class);
 });
 
+test('accepts boolean-like strings regardless of case', function (string $value) {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, $value);
+
+    expect((new ReadsConfigurationConfigurable)->isEnabled())->toBeTrue();
+})->with(['1', 'on', 'yes', 'true', 'ON', 'True']);
+
+test('an empty string overrides the default', function () {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, '');
+
+    expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeFalse();
+});
+
+test('throws on non-scalar values', function () {
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class, ['on']);
+
+    expect(fn () => (new ReadsConfigurationConfigurable)->isEnabled())
+        ->toThrow(InvalidArgumentException::class);
+});
+
 test('accepts native booleans and integers', function (mixed $value, bool $expected) {
     config()->set('sensible.'.ReadsConfigurationConfigurable::class, $value);
 
