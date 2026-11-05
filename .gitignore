@@ -4,6 +4,8 @@
 Thumbs.db
 
 /.env
+/.claude/settings.local.json
+/.claude/worktrees/
 
 /.codex/
 /.cursor/
