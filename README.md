@@ -29,14 +29,14 @@ All features are optional and fully configurable via `config/sensible.php`:
 
 - 🚀 **Asset Prefetching** – Prefetch assets for faster load times.
 - ⚡️ **Auto Eager Loading** – Avoid N+1 queries automatically (Laravel 12.8+; skipped on older versions).
-- 😴 **Fake Sleep** – Mocks the delay function in tests, preventing real delays.
+- 😴 **Fake Sleep** – Fakes Laravel's `Sleep` class in tests, preventing real delays.
 - 🔒 **Force HTTPS** – Enforce secure `https://` URLs.
 - 🕒 **Immutable Dates** – Prevent unexpected date mutations.
 - 🔄 **Prevent Stray Requests** – Block unmocked HTTP requests in tests.
 - 🛑 **Safe Console** – Block destructive database commands (e.g. `migrate:fresh`).
-- 🔑 **Set Default Password** – Enforce strong password policies.
+- 🔑 **Set Default Password** – Set the rules returned by `Password::defaults()` in validation.
 - ✅ **Strict Models** – Enforce strict model behavior.
-- 🔓 **Optional Unguarded Models** – Disable mass-assignment protection.
+- 🔓 **Unguarded Models** – Disable mass-assignment protection (off by default).
 
 ## Configuration
 
@@ -72,11 +72,11 @@ Each feature can also be toggled through an environment variable. Values such as
 | Strict Models                       | `SENSIBLE_SHOULD_BE_STRICT`                       | `true` outside production |
 | Unguarded Models                    | `SENSIBLE_UNGUARD`                                | `false`                   |
 
-"In production" means `app()->isProduction()` when the configurables run (after the application boots), so the `--env=` Artisan option is respected. Setting the `SENSIBLE_*` variable overrides the environment-based default. Leave it unset (or remove it) to keep that default: an empty value such as `SENSIBLE_FORCE_SCHEME=` counts as false and disables the feature.
+"In production" means `app()->isProduction()` when the configurables run (after the application boots), so the `--env=` Artisan option is respected. Setting the `SENSIBLE_*` variable overrides the environment-based default. Leave it unset (or remove it) to keep that default: an empty value such as `SENSIBLE_FORCE_SCHEME=` counts as false and disables the feature. A `null` value (e.g. `SENSIBLE_FORCE_SCHEME=null`) counts as not set: it keeps the environment-based default and disables the other features.
 
 ### Password policies
 
-`SENSIBLE_SET_DEFAULT_PASSWORD` accepts a boolean (which applies the `complex` policy) or one of the following policies:
+`SENSIBLE_SET_DEFAULT_PASSWORD` accepts a boolean-like value (`true` applies the `complex` policy, `false` disables it) or one of the following policies (case-insensitive):
 
 | Policy         | Rules                                                                                                    |
 | -------------- | -------------------------------------------------------------------------------------------------------- |
@@ -87,7 +87,7 @@ Each feature can also be toggled through an environment variable. Values such as
 | `alphanumeric` | At least 8 characters, with letters and numbers.                                                         |
 | `complex`      | At least 8 characters, mixed case, numbers, symbols and not compromised (breach check skipped in tests). |
 
-In `config/sensible.php` you can also use the enum, e.g. `SetDefaultPassword::class => PasswordType::Pin` (`Datalogix\Sensible\Enums\PasswordType`). Any other value throws an exception.
+In `config/sensible.php` you can also use the enum, e.g. `SetDefaultPassword::class => PasswordType::Pin` (`Datalogix\Sensible\Enums\PasswordType`). Any other value throws an exception. The policy only applies where your validation rules use `Password::defaults()`.
 
 ## Custom configurables
 
@@ -127,9 +127,9 @@ public function boot(): void
 }
 ```
 
-`register()` accepts a class name (resolved through the container) or an instance. Classes that don't implement `Configurable` throw an `InvalidArgumentException`.
+`register()` accepts a class name (resolved through the container) or an instance. Classes that don't implement `Configurable`, or container bindings that don't resolve to one, throw an `InvalidArgumentException`.
 
-Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class name twice has no effect. Registering an instance replaces the configurable of the exact same class, including a built-in one (e.g. a pre-configured `new ForceScheme`); registering the same instance again has no effect. Matching is by exact class: a subclass of a built-in is added alongside it, so both run, and it reads the configuration under its own class name. Disable the built-in in `config/sensible.php` if only yours should run. If the configurables have already run, the replacement is applied on top of the previous one; the previous configurable's effects are not undone.
+Configurables run once every service provider has booted, so registering them in `register()` or `boot()` both work. Configurables registered later are applied immediately, and registering the same class name twice has no effect. Registering an instance replaces the configurable of the exact same class, including a built-in one (e.g. `new ForceScheme`); registering the same instance again has no effect. Matching is by exact class: a subclass of a built-in is added alongside it and reads the configuration under its own class name. Give it its own entry in `config/sensible.php`: without one it falls back to the default in code, which is disabled unless the built-in's default depends on the environment. Disable the built-in in `config/sensible.php` if only yours should run. If the configurables have already run, the replacement is applied on top of the previous one; the previous configurable's effects are not undone.
 
 ### Reading the configuration
 
@@ -171,7 +171,7 @@ return [
 ];
 ```
 
-The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `createInvalidConfigurationValueException()` builds the exception for values you don't accept.
+The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `createInvalidConfigurationValueException()` builds the exception for values you don't accept. `toBoolean()` converts a boolean-like value (or returns `null` when it isn't one), and `configKey()` returns the configuration key, which you can override to read from another key.
 
 `configEnabled()` accepts a default used when the value is not set (`null`), which lets your configurable depend on the environment like the built-in ones:
 
@@ -189,6 +189,10 @@ DefaultStringLength::class => env('SENSIBLE_DEFAULT_STRING_LENGTH'),
 ```
 
 Don't call `app()` in `config/sensible.php`: the published config is loaded before the environment is detected.
+
+## Release notes
+
+See [GitHub Releases](https://github.com/datalogix/laravel-sensible/releases).
 
 ## License
 
