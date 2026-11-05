@@ -30,7 +30,7 @@ All features are optional and fully configurable via `config/sensible.php`:
 - 🚀 **Asset Prefetching** – Prefetch assets for faster load times.
 - ⚡️ **Auto Eager Loading** – Avoid N+1 queries automatically (Laravel 12.8+; skipped on older versions).
 - 😴 **Fake Sleep** – Fakes Laravel's `Sleep` class in tests, preventing real delays.
-- 🔒 **Force HTTPS** – Enforce secure `https://` URLs.
+- 🔒 **Force HTTPS** – Generate all URLs with `https://` (plain HTTP requests are not redirected).
 - 🕒 **Immutable Dates** – Prevent unexpected date mutations.
 - 🔄 **Prevent Stray Requests** – Block unmocked HTTP requests in tests.
 - 🛑 **Safe Console** – Block destructive database commands (e.g. `migrate:fresh`).
@@ -171,7 +171,7 @@ return [
 ];
 ```
 
-The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `createInvalidConfigurationValueException()` builds the exception for values you don't accept. `toBoolean()` converts a boolean-like value (or returns `null` when it isn't one), and `configKey()` returns the configuration key, which you can override to read from another key.
+The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `createInvalidConfigurationValueException()` builds the exception for values you don't accept. `toBoolean()` converts a boolean-like value (or returns `null` when it isn't one; `null` and an empty string convert to `false`, so check for a missing value first), and `configKey()` returns the configuration key, which you can override to read from another key.
 
 `configEnabled()` accepts a default used when the value is not set (`null`), which lets your configurable depend on the environment like the built-in ones:
 
