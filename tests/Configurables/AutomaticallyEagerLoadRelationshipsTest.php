@@ -8,11 +8,11 @@ beforeEach(function () {
         method_exists(Model::class, 'automaticallyEagerLoadRelationships'),
         'Automatically eager loading relationships is not supported in this version of Laravel.'
     );
+
+    Model::automaticallyEagerLoadRelationships(false);
 });
 
 test('configure', function () {
-    Model::automaticallyEagerLoadRelationships(false);
-
     $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
     $automaticallyEagerLoadRelationships->configure();
 
