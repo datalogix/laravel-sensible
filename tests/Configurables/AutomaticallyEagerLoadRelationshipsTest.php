@@ -1,46 +1,34 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Datalogix\Sensible\Configurables\AutomaticallyEagerLoadRelationships;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Database\Eloquent\Model;
 
-class AutomaticallyEagerLoadRelationshipsTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
+beforeEach(function () {
+    $this->markTestSkippedUnless(
+        method_exists(Model::class, 'automaticallyEagerLoadRelationships'),
+        'Automatically eager loading relationships is not supported in this version of Laravel.'
+    );
 
-        $this->markTestSkippedUnless(
-            method_exists(Model::class, 'automaticallyEagerLoadRelationships'),
-            'Automatically eager loading relationships is not supported in this version of Laravel.'
-        );
-    }
+    Model::automaticallyEagerLoadRelationships(false);
+});
 
-    public function test_configure()
-    {
-        Model::automaticallyEagerLoadRelationships(false);
+test('configure', function () {
+    $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
+    $automaticallyEagerLoadRelationships->configure();
 
-        $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
-        $automaticallyEagerLoadRelationships->configure();
+    expect(Model::isAutomaticallyEagerLoadingRelationships())->toBeTrue();
+});
 
-        $this->assertTrue(Model::isAutomaticallyEagerLoadingRelationships());
-    }
+test('is enabled by default', function () {
+    $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
 
-    public function test_is_enabled_by_default()
-    {
-        $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
+    expect($automaticallyEagerLoadRelationships->enabled())->toBeTrue();
+});
 
-        $this->assertTrue($automaticallyEagerLoadRelationships->enabled());
-    }
+test('can be disabled', function () {
+    config()->set('sensible.'.AutomaticallyEagerLoadRelationships::class, false);
 
-    public function test_can_be_disabled()
-    {
-        config()->set('sensible.'.AutomaticallyEagerLoadRelationships::class, false);
+    $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
 
-        $automaticallyEagerLoadRelationships = new AutomaticallyEagerLoadRelationships;
-
-        $this->assertFalse($automaticallyEagerLoadRelationships->enabled());
-    }
-}
+    expect($automaticallyEagerLoadRelationships->enabled())->toBeFalse();
+});

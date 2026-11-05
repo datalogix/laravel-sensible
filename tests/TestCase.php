@@ -18,7 +18,7 @@ abstract class TestCase extends OrchestraTestCase
     }
 
     /**
-     * Run as production, so the config defaults are resolved before the providers register.
+     * Run as production, so the environment-dependent defaults resolve as production.
      *
      * @param  Application  $app
      */

@@ -1,43 +1,40 @@
 <?php
 
-namespace Datalogix\Sensible\Tests;
-
-use Datalogix\Sensible\Contracts\Configurable;
 use Datalogix\Sensible\Sensible;
+use Datalogix\Sensible\SensibleManager;
+use Datalogix\Sensible\SensibleServiceProvider;
+use Datalogix\Sensible\Tests\Fixtures\AppServiceProviderTestCase;
+use Datalogix\Sensible\Tests\Fixtures\BootRegisteredConfigurable;
+use Datalogix\Sensible\Tests\Fixtures\RegisterRegisteredConfigurable;
 use Illuminate\Support\ServiceProvider;
+use Mockery\MockInterface;
 
-class SensibleServiceProviderTest extends TestCase
-{
-    protected function getPackageProviders($app): array
-    {
-        return array_merge(parent::getPackageProviders($app), [AppServiceProvider::class]);
-    }
+uses(AppServiceProviderTestCase::class);
 
-    public function test_runs_configurables_registered_in_application_boot()
-    {
-        $this->assertTrue(BootRegisteredConfigurable::$configured);
-    }
-}
+test('runs configurables registered in application register', function () {
+    expect(RegisterRegisteredConfigurable::$configured)->toBeTrue();
+});
 
-class AppServiceProvider extends ServiceProvider
-{
-    public function boot(): void
-    {
-        Sensible::register(BootRegisteredConfigurable::class);
-    }
-}
+test('runs configurables registered in application boot', function () {
+    expect(BootRegisteredConfigurable::$configured)->toBeTrue();
+});
 
-class BootRegisteredConfigurable implements Configurable
-{
-    public static bool $configured = false;
+test('alias and facade resolve the same singleton', function () {
+    expect(app('sensible'))->toBe(app(SensibleManager::class))
+        ->and(Sensible::getFacadeRoot())->toBe(app(SensibleManager::class));
+});
 
-    public function enabled(): bool
-    {
-        return true;
-    }
+test('runs the manager the facade resolves', function () {
+    Sensible::swap(Mockery::mock(SensibleManager::class, function (MockInterface $mock) {
+        $mock->shouldReceive('run')->once();
+    }));
 
-    public function configure(): void
-    {
-        static::$configured = true;
-    }
-}
+    (new SensibleServiceProvider($this->app))->boot();
+});
+
+test('publishes the config file', function (string $tag) {
+    $paths = ServiceProvider::pathsToPublish(SensibleServiceProvider::class, $tag);
+
+    expect(array_map(realpath(...), array_keys($paths)))->toBe([realpath(__DIR__.'/../config/sensible.php')])
+        ->and(array_values($paths))->toBe([config_path('sensible.php')]);
+})->with(['sensible-config', 'config']);

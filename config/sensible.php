@@ -11,11 +11,15 @@ use Datalogix\Sensible\Configurables\SetDefaultPassword;
 use Datalogix\Sensible\Configurables\ShouldBeStrict;
 use Datalogix\Sensible\Configurables\Unguard;
 
+/*
+ * Entries without a default (null) resolve it from the environment when the configurables run.
+ * Leave their SENSIBLE_* variable unset to keep that default; an empty value (e.g. SENSIBLE_FORCE_SCHEME=) disables the configurable.
+ */
 return [
     /**
      * 🚀 Asset Prefetching.
      *
-     * Configures Laravel Vite to preload assets more aggressively.
+     * Prefetches all Vite assets eagerly after the page loads.
      * Improves front-end load times and user experience.
      */
     AggressivePrefetching::class => env('SENSIBLE_AGGRESSIVE_PREFETCHING', true),
@@ -24,7 +28,7 @@ return [
      * ⚡️ Auto Eager Loading.
      *
      * When a relationship is lazy loaded on a model retrieved as part of a collection,
-     * it is loaded for every model in that collection at once (Laravel 12.8+).
+     * it is loaded for every model in that collection at once (Laravel 12.8+; skipped on older versions).
      * Reduces N+1 query issues without needing to call `with()` manually.
      */
     AutomaticallyEagerLoadRelationships::class => env('SENSIBLE_AUTOMATICALLY_EAGER_LOAD_RELATIONSHIPS', true),
@@ -32,7 +36,7 @@ return [
     /**
      * 😴 Fake Sleep.
      *
-     * Configures Laravel's Sleep Facade to be faked during tests.
+     * Configures Laravel's Sleep class to be faked during tests.
      * Prevents actual delays, ensuring faster test execution.
      */
     FakeSleep::class => env('SENSIBLE_FAKE_SLEEP', true),
@@ -41,9 +45,9 @@ return [
      * 🔒 Force HTTPS.
      *
      * Forces all generated URLs to use `https://`.
-     * Recommended in production to ensure secure connections.
+     * Enabled by default in production.
      */
-    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME', app()->isProduction()),
+    ForceScheme::class => env('SENSIBLE_FORCE_SCHEME'),
 
     /**
      * 🕒 Immutable Dates.
@@ -64,17 +68,18 @@ return [
     /**
      * 🛑 Safe Console.
      *
-     * Blocks potentially dangerous Artisan commands (e.g., `migrate:fresh`) in production.
+     * Blocks destructive database commands (e.g., `migrate:fresh`).
      * Adds a layer of safety in critical environments.
+     * Enabled by default in production.
      */
-    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS', app()->isProduction()),
+    ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS'),
 
     /**
-     * 🔑 Set Default Password Strategy.
+     * 🔑 Set Default Password.
      *
-     * Configures a default password policy to enforce when creating or seeding users.
-     * Accepts `true`/`false` to enable/disable (defaults to the "complex" policy), or one of
-     * the `PasswordType` values below:
+     * Sets the rules returned by `Password::defaults()` in validation (e.g. registration and password reset).
+     * Accepts a boolean-like value (`true` applies the "complex" policy, `false` disables it),
+     * or a policy, as one of the values below (case-insensitive) or a `PasswordType` enum case:
      * - `simple`       – Minimum length of 6 characters only, no other requirements.
      * - `numeric`      – Digits only, 4 to 6 digits.
      * - `pin`          – Digits only, exactly 4 digits.
@@ -85,18 +90,22 @@ return [
      *   The breach check is skipped in tests, since it calls an external API.
      *
      * Any other value throws an exception, so typos don't silently change the policy.
+     * Enabled by default in production, with the "complex" policy.
      */
-    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD', app()->isProduction()),
+    SetDefaultPassword::class => env('SENSIBLE_SET_DEFAULT_PASSWORD'),
 
     /**
      * ✅ Strict Models.
      *
-     * Enforces strict handling of attributes in Eloquent:
+     * Enforces strict behavior in Eloquent:
      * - Accessing missing attributes throws exceptions.
-     * - Lazy loading is disabled by default.
-     * - Assigning undefined attributes is not allowed.
+     * - Lazy loading a relationship on a model retrieved with other models throws an exception,
+     *   unless Auto Eager Loading (enabled by default) loads it first.
+     * - Mass assigning non-fillable attributes throws instead of silently discarding them.
+     *
+     * Enabled by default outside production.
      */
-    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT', ! app()->isProduction()),
+    ShouldBeStrict::class => env('SENSIBLE_SHOULD_BE_STRICT'),
 
     /**
      * 🔓 Optional Unguarded Models.

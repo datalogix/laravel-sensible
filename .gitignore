@@ -3,6 +3,8 @@
 .DS_Store
 Thumbs.db
 
+/.env
+
 /.codex/
 /.cursor/
 /.fleet/
@@ -19,6 +21,9 @@ Thumbs.db
 
 /composer.lock
 /composer.phar
+
+/build/
+/coverage/
 /clover.xml
 
 /phpunit.xml

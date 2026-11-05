@@ -13,12 +13,15 @@
     ],
     "require": {
         "php": "^8.2",
-        "laravel/framework": "^12.0|^13.0"
+        "laravel/framework": "^12.0|^13.0",
+        "nesbot/carbon": "^3.8.4"
     },
     "require-dev": {
+        "larastan/larastan": "^3.3.1",
         "laravel/pint": "^1.30",
+        "mockery/mockery": "^1.6.10",
         "orchestra/testbench": "^10.0|^11.0",
-        "phpunit/phpunit": "^11.5|^12.0|^13.0"
+        "pestphp/pest": "^3.8.2|^4.4.1|^5.0.1"
     },
     "autoload": {
         "psr-4": {
@@ -31,8 +34,12 @@
         }
     },
     "scripts": {
-        "lint": "vendor/bin/pint",
-        "test": "vendor/bin/phpunit"
+        "test": "@php vendor/bin/pest",
+        "lint": [
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse --memory-limit=1G"
+        ],
+        "format": "@php vendor/bin/pint"
     },
     "extra": {
         "laravel": {
@@ -42,6 +49,9 @@
         }
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }

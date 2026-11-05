@@ -1,43 +1,31 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Datalogix\Sensible\Configurables\AggressivePrefetching;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Support\Facades\Vite;
 
-class AggressivePrefetchingTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
+beforeEach(function () {
+    Vite::usePrefetchStrategy(null);
+});
 
-        Vite::usePrefetchStrategy(null);
-    }
+test('configure', function () {
+    Vite::spy();
 
-    public function test_configure()
-    {
-        Vite::spy();
+    $aggressivePrefetching = new AggressivePrefetching;
+    $aggressivePrefetching->configure();
 
-        $aggressivePrefetching = new AggressivePrefetching;
-        $aggressivePrefetching->configure();
+    Vite::shouldHaveReceived('useAggressivePrefetching')->once();
+});
 
-        Vite::shouldHaveReceived('useAggressivePrefetching')->once();
-    }
+test('is enabled by default', function () {
+    $aggressivePrefetching = new AggressivePrefetching;
 
-    public function test_is_enabled_by_default()
-    {
-        $aggressivePrefetching = new AggressivePrefetching;
+    expect($aggressivePrefetching->enabled())->toBeTrue();
+});
 
-        $this->assertTrue($aggressivePrefetching->enabled());
-    }
+test('can be disabled', function () {
+    config()->set('sensible.'.AggressivePrefetching::class, false);
 
-    public function test_can_be_disabled()
-    {
-        config()->set('sensible.'.AggressivePrefetching::class, false);
+    $aggressivePrefetching = new AggressivePrefetching;
 
-        $aggressivePrefetching = new AggressivePrefetching;
-
-        $this->assertFalse($aggressivePrefetching->enabled());
-    }
-}
+    expect($aggressivePrefetching->enabled())->toBeFalse();
+});

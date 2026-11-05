@@ -3,6 +3,9 @@
 namespace Datalogix\Sensible;
 
 use Datalogix\Sensible\Contracts\Configurable;
+use InvalidArgumentException;
+use ReflectionClass;
+use Throwable;
 
 class SensibleManager
 {
@@ -31,21 +34,51 @@ class SensibleManager
 
     /**
      * Register a new configurable class.
+     *
+     * An instance replaces an already registered configurable of the same class.
      */
     public function register(string|Configurable $configurable): void
     {
-        if (is_string($configurable) && ! is_subclass_of($configurable, Configurable::class)) {
-            throw new \InvalidArgumentException("{$configurable} must implement ".Configurable::class);
+        if (is_string($configurable)) {
+            if (! is_subclass_of($configurable, Configurable::class)) {
+                throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
+            }
+
+            $configurable = (new ReflectionClass($configurable))->getName();
         }
 
-        if (in_array($this->classOf($configurable), array_map($this->classOf(...), $this->configurables), true)) {
+        if (in_array($configurable, $this->configurables, true)) {
             return;
         }
 
-        $this->configurables[] = $configurable;
+        $index = array_search(
+            $this->classOf($configurable),
+            array_map($this->classOf(...), $this->configurables),
+            true,
+        );
+
+        $replaced = $index === false ? [] : [$this->configurables[$index]];
+
+        if ($index === false) {
+            $this->configurables[] = $configurable;
+        } elseif (is_string($configurable)) {
+            return;
+        } else {
+            array_splice($this->configurables, $index, 1, [$configurable]);
+        }
 
         if ($this->ran) {
-            $this->apply($configurable);
+            try {
+                $this->apply($configurable);
+            } catch (Throwable $e) {
+                $position = array_search($configurable, $this->configurables, true);
+
+                if ($position !== false) {
+                    array_splice($this->configurables, $position, 1, $replaced);
+                }
+
+                throw $e;
+            }
         }
     }
 
@@ -65,11 +98,11 @@ class SensibleManager
      * Get the class name of the given configurable.
      *
      * @param  class-string<Configurable>|Configurable  $configurable
-     * @return class-string<Configurable>
+     * @return class-string
      */
     protected function classOf(string|Configurable $configurable): string
     {
-        return is_string($configurable) ? ltrim($configurable, '\\') : $configurable::class;
+        return is_string($configurable) ? $configurable : $configurable::class;
     }
 
     /**
@@ -79,12 +112,14 @@ class SensibleManager
      */
     protected function apply(string|Configurable $configurable): void
     {
-        if (is_string($configurable)) {
-            $configurable = app($configurable);
+        $instance = is_string($configurable) ? app($configurable) : $configurable;
+
+        if (! $instance instanceof Configurable) {
+            throw new InvalidArgumentException($this->classOf($configurable).' must resolve to an instance of '.Configurable::class);
         }
 
-        if ($configurable->enabled()) {
-            $configurable->configure();
+        if ($instance->enabled()) {
+            $instance->configure();
         }
     }
 }

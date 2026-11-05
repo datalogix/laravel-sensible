@@ -24,15 +24,32 @@ trait ReadsConfiguration
 
     /**
      * Whether the configuration value is truthy, accepting "1", "0", "on", "off", "yes" and "no".
+     *
+     * The given default is used when the value is not set (null).
      */
-    protected function configEnabled(): bool
+    protected function configEnabled(bool $default = false): bool
     {
-        return $this->toBoolean($this->configValue())
-            ?? throw new InvalidArgumentException(sprintf(
-                'Configuration value for key [%s] must be a boolean, [%s] given.',
-                $this->configKey(),
-                var_export($this->configValue(), true),
-            ));
+        $value = $this->configValue();
+
+        if ($value === null) {
+            return $default;
+        }
+
+        return $this->toBoolean($value)
+            ?? throw $this->createInvalidConfigurationValueException('a boolean', $value);
+    }
+
+    /**
+     * Create the exception for a configuration value that is not one of the expected values.
+     */
+    protected function createInvalidConfigurationValueException(string $expected, mixed $value): InvalidArgumentException
+    {
+        return new InvalidArgumentException(sprintf(
+            'Configuration value for key [%s] must be %s, [%s] given.',
+            $this->configKey(),
+            $expected,
+            var_export($value, true),
+        ));
     }
 
     /**
@@ -40,10 +57,6 @@ trait ReadsConfiguration
      */
     protected function toBoolean(mixed $value): ?bool
     {
-        if ($value === null) {
-            return false;
-        }
-
         return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
     }
 }

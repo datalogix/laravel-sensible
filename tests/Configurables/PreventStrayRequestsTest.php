@@ -1,50 +1,45 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Datalogix\Sensible\Configurables\PreventStrayRequests;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Support\Facades\Http;
 
-class PreventStrayRequestsTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Http::preventStrayRequests(false);
-    }
+beforeEach(function () {
+    Http::preventStrayRequests(false);
+});
 
-    public function test_configure()
-    {
-        $preventStrayRequests = new PreventStrayRequests;
-        $preventStrayRequests->configure();
+test('configure', function () {
+    $preventStrayRequests = new PreventStrayRequests;
+    $preventStrayRequests->configure();
 
-        $this->assertTrue(Http::preventingStrayRequests());
-    }
+    expect(Http::preventingStrayRequests())->toBeTrue();
+});
 
-    public function test_is_disabled_by_default()
-    {
-        $preventStrayRequests = new PreventStrayRequests;
+test('is disabled outside unit tests by default', function () {
+    $preventStrayRequests = new PreventStrayRequests;
 
-        $this->assertFalse($preventStrayRequests->enabled());
-    }
+    expect($preventStrayRequests->enabled())->toBeFalse();
+});
 
-    public function test_can_be_enabled_ignored_as_not_during_testing()
-    {
-        config()->set('sensible.'.PreventStrayRequests::class, true);
+test('stays disabled outside unit tests', function () {
+    config()->set('sensible.'.PreventStrayRequests::class, true);
 
-        $preventStrayRequests = new PreventStrayRequests;
+    $preventStrayRequests = new PreventStrayRequests;
 
-        $this->assertFalse($preventStrayRequests->enabled());
-    }
+    expect($preventStrayRequests->enabled())->toBeFalse();
+});
 
-    public function test_can_be_enabled_when_during_testing()
-    {
-        config()->set('sensible.'.PreventStrayRequests::class, true);
-        app()->detectEnvironment(fn (): string => 'testing');
+test('is enabled when running unit tests', function () {
+    config()->set('sensible.'.PreventStrayRequests::class, true);
+    app()->detectEnvironment(fn (): string => 'testing');
 
-        $preventStrayRequests = new PreventStrayRequests;
+    $preventStrayRequests = new PreventStrayRequests;
 
-        $this->assertTrue($preventStrayRequests->enabled());
-    }
-}
+    expect($preventStrayRequests->enabled())->toBeTrue();
+});
+
+test('can be disabled when running unit tests', function () {
+    config()->set('sensible.'.PreventStrayRequests::class, false);
+    app()->detectEnvironment(fn (): string => 'testing');
+
+    expect((new PreventStrayRequests)->enabled())->toBeFalse();
+});

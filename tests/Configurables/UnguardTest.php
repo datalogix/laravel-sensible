@@ -1,40 +1,29 @@
 <?php
 
-namespace Datalogix\Sensible\Tests\Configurables;
-
 use Datalogix\Sensible\Configurables\Unguard;
-use Datalogix\Sensible\Tests\TestCase;
 use Illuminate\Database\Eloquent\Model;
 
-class UnguardTest extends TestCase
-{
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Model::reguard();
-    }
+beforeEach(function () {
+    Model::reguard();
+});
 
-    public function test_configure()
-    {
-        $unguard = new Unguard;
-        $unguard->configure();
+test('configure', function () {
+    $unguard = new Unguard;
+    $unguard->configure();
 
-        $this->assertTrue(Model::isUnguarded());
-    }
+    expect(Model::isUnguarded())->toBeTrue();
+});
 
-    public function test_is_disabled_by_default()
-    {
-        $unguard = new Unguard;
+test('is disabled by default', function () {
+    $unguard = new Unguard;
 
-        $this->assertFalse($unguard->enabled());
-    }
+    expect($unguard->enabled())->toBeFalse();
+});
 
-    public function test_can_be_enabled()
-    {
-        config()->set('sensible.'.Unguard::class, true);
+test('can be enabled', function () {
+    config()->set('sensible.'.Unguard::class, true);
 
-        $unguard = new Unguard;
+    $unguard = new Unguard;
 
-        $this->assertTrue($unguard->enabled());
-    }
-}
+    expect($unguard->enabled())->toBeTrue();
+});
