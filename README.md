@@ -190,6 +190,10 @@ DefaultStringLength::class => env('SENSIBLE_DEFAULT_STRING_LENGTH'),
 
 Don't call `app()` in `config/sensible.php`: the published config is loaded before the environment is detected.
 
+## Laravel Boost
+
+This package ships an AI guideline for [Laravel Boost](https://laravel.com/docs/boost) that tells coding agents which defaults it applies. To install it, select `datalogix/laravel-sensible` in the third-party prompt of `php artisan boost:install`. When the command runs without interaction, the guideline is only installed if the package is listed under `packages` in `boost.json`.
+
 ## Release notes
 
 See [GitHub Releases](https://github.com/datalogix/laravel-sensible/releases).
