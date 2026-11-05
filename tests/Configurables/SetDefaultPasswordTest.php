@@ -179,6 +179,26 @@ test('accepts boolean like strings', function () {
     expect($setDefaultPassword->enabled())->toBeFalse();
 });
 
+test('an empty value disables it', function () {
+    config()->set('sensible.'.SetDefaultPassword::class, '');
+
+    expect((new SetDefaultPassword)->enabled())->toBeFalse();
+});
+
+test('numeric accepts 4 to 6 digits only', function (string $password, bool $passes) {
+    config()->set('sensible.'.SetDefaultPassword::class, 'numeric');
+
+    (new SetDefaultPassword)->configure();
+
+    expect(Validator::make(['password' => $password], ['password' => Password::default()])->passes())->toBe($passes);
+})->with([
+    ['123', false],
+    ['1234', true],
+    ['123456', true],
+    ['1234567', false],
+    ['12a4', false],
+]);
+
 test('accepts a password type enum', function () {
     config()->set('sensible.'.SetDefaultPassword::class, PasswordType::Pin);
 
