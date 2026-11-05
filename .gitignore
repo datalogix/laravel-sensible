@@ -3,8 +3,6 @@
 .DS_Store
 Thumbs.db
 
-/.env
-
 /.codex/
 /.cursor/
 /.fleet/
@@ -15,16 +13,19 @@ Thumbs.db
 
 /.phpunit.cache/
 /.phpunit.result.cache
+/build/
+/coverage/
 
 /vendor/
 /node_modules/
 
 /composer.lock
 /composer.phar
-
-/build/
-/coverage/
 /clover.xml
+
+/.env
+/.claude/settings.local.json
+/.claude/worktrees/
 
 /phpunit.xml
 
