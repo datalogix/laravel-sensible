@@ -36,13 +36,13 @@ trait ReadsConfiguration
         }
 
         return $this->toBoolean($value)
-            ?? throw $this->invalidConfigurationValue('a boolean', $value);
+            ?? throw $this->createInvalidConfigurationValueException('a boolean', $value);
     }
 
     /**
      * Create the exception for a configuration value that is not one of the expected values.
      */
-    protected function invalidConfigurationValue(string $expected, mixed $value): InvalidArgumentException
+    protected function createInvalidConfigurationValueException(string $expected, mixed $value): InvalidArgumentException
     {
         return new InvalidArgumentException(sprintf(
             'Configuration value for key [%s] must be %s, [%s] given.',

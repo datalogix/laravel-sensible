@@ -63,7 +63,7 @@ class SetDefaultPassword implements Configurable
         return match ($this->toBoolean($value)) {
             true => PasswordType::Complex,
             false => null,
-            null => throw $this->invalidConfigurationValue(
+            null => throw $this->createInvalidConfigurationValueException(
                 sprintf('a boolean or one of [%s]', implode(', ', array_column(PasswordType::cases(), 'value'))),
                 $value,
             ),

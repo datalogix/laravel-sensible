@@ -171,7 +171,7 @@ return [
 ];
 ```
 
-The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `invalidConfigurationValue()` builds the exception for values you don't accept.
+The key must be the configurable's fully qualified class name, so import the class in the config file; a missing or mismatched key silently falls back to the `configEnabled()` default (disabled unless you pass one). `configValue()` returns the raw value, and `createInvalidConfigurationValueException()` builds the exception for values you don't accept.
 
 `configEnabled()` accepts a default used when the value is not set (`null`), which lets your configurable depend on the environment like the built-in ones:
 
