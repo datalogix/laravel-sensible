@@ -28,7 +28,7 @@ return [
      * ⚡️ Auto Eager Loading.
      *
      * When a relationship is lazy loaded on a model retrieved as part of a collection,
-     * it is loaded for every model in that collection at once (Laravel 12.8+).
+     * it is loaded for every model in that collection at once (Laravel 12.8+; skipped on older versions).
      * Reduces N+1 query issues without needing to call `with()` manually.
      */
     AutomaticallyEagerLoadRelationships::class => env('SENSIBLE_AUTOMATICALLY_EAGER_LOAD_RELATIONSHIPS', true),
@@ -36,7 +36,7 @@ return [
     /**
      * 😴 Fake Sleep.
      *
-     * Configures Laravel's Sleep Facade to be faked during tests.
+     * Configures Laravel's Sleep class to be faked during tests.
      * Prevents actual delays, ensuring faster test execution.
      */
     FakeSleep::class => env('SENSIBLE_FAKE_SLEEP', true),
@@ -75,10 +75,11 @@ return [
     ProhibitDestructiveCommands::class => env('SENSIBLE_PROHIBIT_DESTRUCTIVE_COMMANDS'),
 
     /**
-     * 🔑 Set Default Password Strategy.
+     * 🔑 Set Default Password.
      *
      * Sets the rules returned by `Password::defaults()` in validation (e.g. registration and password reset).
-     * Accepts `true` (the "complex" policy) or `false`, or one of the `PasswordType` values below:
+     * Accepts a boolean-like value (`true` applies the "complex" policy, `false` disables it),
+     * or a policy, as one of the values below (case-insensitive) or a `PasswordType` enum case:
      * - `simple`       – Minimum length of 6 characters only, no other requirements.
      * - `numeric`      – Digits only, 4 to 6 digits.
      * - `pin`          – Digits only, exactly 4 digits.
@@ -96,9 +97,10 @@ return [
     /**
      * ✅ Strict Models.
      *
-     * Enforces strict handling of attributes in Eloquent:
+     * Enforces strict behavior in Eloquent:
      * - Accessing missing attributes throws exceptions.
-     * - Lazy loading relationships throws an exception.
+     * - Lazy loading a relationship on a model retrieved with other models throws an exception,
+     *   unless Auto Eager Loading (enabled by default) loads it first.
      * - Mass assigning non-fillable attributes throws instead of silently discarding them.
      *
      * Enabled by default outside production.
