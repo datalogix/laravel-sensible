@@ -4,6 +4,7 @@ namespace Datalogix\Sensible;
 
 use Datalogix\Sensible\Contracts\Configurable;
 use InvalidArgumentException;
+use ReflectionClass;
 
 class SensibleManager
 {
@@ -37,8 +38,12 @@ class SensibleManager
      */
     public function register(string|Configurable $configurable): void
     {
-        if (is_string($configurable) && ! is_subclass_of($configurable, Configurable::class)) {
-            throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
+        if (is_string($configurable)) {
+            if (! is_subclass_of($configurable, Configurable::class)) {
+                throw new InvalidArgumentException("{$configurable} must implement ".Configurable::class);
+            }
+
+            $configurable = (new ReflectionClass($configurable))->getName();
         }
 
         if (in_array($configurable, $this->configurables, true)) {
@@ -46,8 +51,8 @@ class SensibleManager
         }
 
         $index = array_search(
-            strtolower($this->classOf($configurable)),
-            array_map(fn (string|Configurable $registered) => strtolower($this->classOf($registered)), $this->configurables),
+            $this->classOf($configurable),
+            array_map($this->classOf(...), $this->configurables),
             true,
         );
 
@@ -84,7 +89,7 @@ class SensibleManager
      */
     protected function classOf(string|Configurable $configurable): string
     {
-        return is_string($configurable) ? ltrim($configurable, '\\') : $configurable::class;
+        return is_string($configurable) ? $configurable : $configurable::class;
     }
 
     /**

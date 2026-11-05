@@ -173,3 +173,62 @@ test('run throws when the container does not resolve a configurable', function (
     $sensibleManager->register(TestConfigurable::class);
     $sensibleManager->run();
 })->throws(InvalidArgumentException::class, TestConfigurable::class.' must resolve to an instance of '.Configurable::class);
+
+test('registering a non-canonical class name uses the container binding', function (string $name) {
+    $bound = new class extends TestConfigurable {};
+    app()->instance(TestConfigurable::class, $bound);
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($name);
+    $sensibleManager->run();
+
+    expect($bound->configured)->toBeTrue();
+})->with([
+    'leading backslash' => '\\'.TestConfigurable::class,
+    'different case' => strtolower(TestConfigurable::class),
+]);
+
+test('run applies every built-in configurable', function () {
+    foreach (glob(__DIR__.'/../src/Configurables/*.php') ?: [] as $file) {
+        $mock = $this->mock('Datalogix\\Sensible\\Configurables\\'.basename($file, '.php'));
+        $mock->shouldReceive('enabled')->once()->andReturn(false);
+    }
+
+    (new SensibleManager)->run();
+});
+
+test('register adds an instance of a subclass alongside the parent', function () {
+    $parent = new TestConfigurable;
+    $child = new class extends TestConfigurable {};
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($parent);
+    $sensibleManager->register($child);
+    $sensibleManager->run();
+
+    expect($parent->configured)->toBeTrue()
+        ->and($child->configured)->toBeTrue();
+});
+
+test('register during run applies immediately', function () {
+    $sensibleManager = new SensibleManager;
+    $instance = new TestConfigurable;
+
+    $sensibleManager->register(new class($sensibleManager, $instance) implements Configurable
+    {
+        public function __construct(private SensibleManager $manager, private TestConfigurable $instance) {}
+
+        public function enabled(): bool
+        {
+            return true;
+        }
+
+        public function configure(): void
+        {
+            $this->manager->register($this->instance);
+        }
+    });
+    $sensibleManager->run();
+
+    expect($instance->configured)->toBeTrue();
+});
