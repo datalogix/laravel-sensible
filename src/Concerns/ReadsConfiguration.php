@@ -57,10 +57,6 @@ trait ReadsConfiguration
      */
     protected function toBoolean(mixed $value): ?bool
     {
-        if ($value === null) {
-            return false;
-        }
-
         return filter_var($value, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
     }
 }
