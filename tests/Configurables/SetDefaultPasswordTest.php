@@ -199,6 +199,15 @@ test('numeric accepts 4 to 6 digits only', function (string $password, bool $pas
     ['12a4', false],
 ]);
 
+test('ignores whitespace around the policy', function (string $value) {
+    config()->set('sensible.'.SetDefaultPassword::class, $value);
+
+    (new SetDefaultPassword)->configure();
+
+    expect(Validator::make(['password' => '1234'], ['password' => Password::default()])->passes())->toBeTrue();
+    expect(Validator::make(['password' => '12345'], ['password' => Password::default()])->fails())->toBeTrue();
+})->with(['pin ', ' PIN', "pin\n"]);
+
 test('accepts a password type enum', function () {
     config()->set('sensible.'.SetDefaultPassword::class, PasswordType::Pin);
 

@@ -56,7 +56,7 @@ class SetDefaultPassword implements Configurable
             return $value;
         }
 
-        if (is_string($value) && $type = PasswordType::tryFrom(strtolower($value))) {
+        if (is_string($value) && $type = PasswordType::tryFrom(strtolower(trim($value)))) {
             return $type;
         }
 

@@ -57,7 +57,7 @@ class SensibleManager
             true,
         );
 
-        $previous = $this->configurables;
+        $replaced = $index === false ? [] : [$this->configurables[$index]];
 
         if ($index === false) {
             $this->configurables[] = $configurable;
@@ -71,7 +71,11 @@ class SensibleManager
             try {
                 $this->apply($configurable);
             } catch (Throwable $e) {
-                $this->configurables = $previous;
+                $position = array_search($configurable, $this->configurables, true);
+
+                if ($position !== false) {
+                    array_splice($this->configurables, $position, 1, $replaced);
+                }
 
                 throw $e;
             }

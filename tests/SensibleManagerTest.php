@@ -249,3 +249,67 @@ test('a registration that fails after run can be retried', function () {
 
     expect($instance->configured)->toBeTrue();
 });
+
+test('a failed registration after run keeps what it registered', function () {
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->run();
+
+    $nested = new TestConfigurable;
+
+    $failing = new class($sensibleManager, $nested) implements Configurable
+    {
+        public function __construct(private SensibleManager $manager, private TestConfigurable $nested) {}
+
+        public function enabled(): bool
+        {
+            return true;
+        }
+
+        public function configure(): void
+        {
+            $this->manager->register($this->nested);
+
+            throw new RuntimeException('Failed.');
+        }
+    };
+
+    expect(fn () => $sensibleManager->register($failing))->toThrow(RuntimeException::class);
+
+    $nested->configured = false;
+    $sensibleManager->register($nested);
+
+    expect($nested->configured)->toBeFalse();
+});
+
+test('a failed replacement after run keeps the previous instance', function () {
+    $make = fn (bool $fails) => new class($fails) implements Configurable
+    {
+        public int $hits = 0;
+
+        public function __construct(private bool $fails) {}
+
+        public function enabled(): bool
+        {
+            return true;
+        }
+
+        public function configure(): void
+        {
+            throw_if($this->fails, RuntimeException::class, 'Failed.');
+
+            $this->hits++;
+        }
+    };
+
+    $previous = $make(false);
+
+    $sensibleManager = new SensibleManager;
+    $sensibleManager->register($previous);
+    $sensibleManager->run();
+
+    expect(fn () => $sensibleManager->register($make(true)))->toThrow(RuntimeException::class);
+
+    $sensibleManager->run();
+
+    expect($previous->hits)->toBe(2);
+});
