@@ -37,3 +37,10 @@ test('is enabled when running unit tests', function () {
 
     expect($fakeSleep->enabled())->toBeTrue();
 });
+
+test('can be disabled when running unit tests', function () {
+    config()->set('sensible.'.FakeSleep::class, false);
+    app()->detectEnvironment(fn (): string => 'testing');
+
+    expect((new FakeSleep)->enabled())->toBeFalse();
+});

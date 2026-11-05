@@ -36,3 +36,10 @@ test('is enabled when running unit tests', function () {
 
     expect($preventStrayRequests->enabled())->toBeTrue();
 });
+
+test('can be disabled when running unit tests', function () {
+    config()->set('sensible.'.PreventStrayRequests::class, false);
+    app()->detectEnvironment(fn (): string => 'testing');
+
+    expect((new PreventStrayRequests)->enabled())->toBeFalse();
+});
