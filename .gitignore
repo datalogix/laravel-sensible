@@ -28,6 +28,7 @@ Thumbs.db
 /.claude/worktrees/
 
 /phpunit.xml
+/phpstan.neon
 
 /package-lock.json
 /pnpm-lock.yaml
