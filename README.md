@@ -79,7 +79,7 @@ Each feature can also be toggled through an environment variable. Values such as
 - **Set:** the `SENSIBLE_*` variable overrides the environment-based default.
 - **Unset or removed:** keeps the environment-based default.
 - **Empty** (e.g. `SENSIBLE_FORCE_SCHEME=`): counts as false and disables the feature.
-- **`null`** (e.g. `SENSIBLE_FORCE_SCHEME=null`): counts as not set, so it keeps the environment-based default and disables the other features.
+- **`null`** (e.g. `SENSIBLE_FORCE_SCHEME=null`): counts as not set, so these features keep their environment-based default. Any other feature set to `null` (e.g. `SENSIBLE_IMMUTABLE_DATES=null`) is disabled.
 
 ### Password policies
 
@@ -225,6 +225,8 @@ This package ships an AI guideline for [Laravel Boost](https://laravel.com/docs/
 
 - **Interactive:** select `datalogix/laravel-sensible` in the third-party prompt of `php artisan boost:install`.
 - **Without interaction:** list the package under `packages` in `boost.json`.
+
+Boost only loads guidelines from packages your application requires directly, so add `datalogix/laravel-sensible` to your `composer.json` even if another package already requires it.
 
 ## Release notes
 
