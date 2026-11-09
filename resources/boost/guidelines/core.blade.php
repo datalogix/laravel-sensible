@@ -29,7 +29,7 @@ This package applies framework defaults globally after the application boots, so
 
 ### Configuration Values
 
-- Variables accept `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` (`SENSIBLE_SET_DEFAULT_PASSWORD` also accepts a policy name); any other value throws an exception.
+- Variables accept `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` (`SENSIBLE_SET_DEFAULT_PASSWORD` also accepts a policy name); `null` counts as not set (it keeps the environment-based default, or disables features without one); any other value throws an exception.
 - For the environment-dependent entries, leave the variable unset to keep the default. An empty value (`SENSIBLE_FORCE_SCHEME=`) disables them.
 - Don't call `app()` in `config/sensible.php`: the published config is loaded before the environment is detected.
 

@@ -57,7 +57,7 @@ return [
 ];
 ```
 
-Each feature can also be toggled through an environment variable. Values such as `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` are accepted; anything else throws an exception.
+Each feature can also be toggled through an environment variable. Values such as `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` are accepted (`SENSIBLE_SET_DEFAULT_PASSWORD` also accepts a policy name, and `null` counts as not set); anything else throws an exception.
 
 | Feature                             | Environment variable                              | Default                   |
 | ----------------------------------- | ------------------------------------------------- | ------------------------- |
