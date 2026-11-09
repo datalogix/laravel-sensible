@@ -57,7 +57,7 @@ return [
 ];
 ```
 
-Each feature can also be toggled through an environment variable. Values such as `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` are accepted; anything else throws an exception.
+Each feature can also be toggled through an environment variable. Values such as `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` are accepted (`SENSIBLE_SET_DEFAULT_PASSWORD` also accepts a policy name, and `null` counts as not set); anything else throws an exception.
 
 | Feature                             | Environment variable                              | Default                   |
 | ----------------------------------- | ------------------------------------------------- | ------------------------- |
@@ -79,7 +79,7 @@ Each feature can also be toggled through an environment variable. Values such as
 - **Set:** the `SENSIBLE_*` variable overrides the environment-based default.
 - **Unset or removed:** keeps the environment-based default.
 - **Empty** (e.g. `SENSIBLE_FORCE_SCHEME=`): counts as false and disables the feature.
-- **`null`** (e.g. `SENSIBLE_FORCE_SCHEME=null`): counts as not set, so it keeps the environment-based default and disables the other features.
+- **`null`** (e.g. `SENSIBLE_FORCE_SCHEME=null`): counts as not set, so these features keep their environment-based default. Any other feature set to `null` (e.g. `SENSIBLE_IMMUTABLE_DATES=null`) is disabled.
 
 ### Password policies
 
@@ -224,7 +224,9 @@ Don't call `app()` in `config/sensible.php`: the published config is loaded befo
 This package ships an AI guideline for [Laravel Boost](https://laravel.com/docs/boost) that tells coding agents which defaults it applies. It is opt-in:
 
 - **Interactive:** select `datalogix/laravel-sensible` in the third-party prompt of `php artisan boost:install`.
-- **Without interaction:** list the package under `packages` in `boost.json`.
+- **Without interaction:** add the package to `packages` in `boost.json`, then run `php artisan boost:update` (or `php artisan boost:install --no-interaction`).
+
+Boost only loads guidelines from packages your application requires directly, so add `datalogix/laravel-sensible` to your `composer.json` even if another package already requires it.
 
 ## Release notes
 

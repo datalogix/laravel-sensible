@@ -4,10 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `composer test` — run the Pest suite (`vendor/bin/pest`; add `--no-coverage` to skip the clover/text coverage report).
+- `composer test` — run the Pest suite (`vendor/bin/pest`; writes `clover.xml` when a coverage driver is available, `--no-coverage` skips it, `--coverage` prints the per-file summary).
 - `vendor/bin/pest --filter "test name"` or `vendor/bin/pest tests/Configurables/ForceSchemeTest.php` — run a single test/file.
-- `composer lint` — check only: Pint (`--test`) and Larastan (`phpstan.neon.dist`, level max).
+- `composer lint` — check only: Pint (`--test`) and Larastan (`phpstan.neon.dist`, level max; a local `phpstan.neon` overrides it).
 - `composer format` — format with Laravel Pint.
+- `vendor/bin/testbench <command>` — run Artisan against a Testbench app with the package provider loaded (`testbench.yaml`).
 
 CI (`.github/workflows/datalogix.yml`) uses the shared workflow `datalogix/workflows/.github/workflows/package.yml@v2`.
 
@@ -28,6 +29,7 @@ Laravel package (`Datalogix\Sensible`, PHP ^8.2, Laravel 12/13) that applies opt
 - A class name already registered and the very same instance are ignored.
 - An instance replaces the entry of the exact same class; a subclass is added alongside.
 - Configurables registered after `run()` are applied immediately; a replacement is applied on top, without undoing the previous one.
+- If applying a configurable registered after `run()` throws, its entry is removed (a replacement restores the previous entry, but state changed by the failed `configure()` is not undone) and the exception is rethrown, so the registration can be retried.
 - Classes that don't implement `Configurable`, or container bindings that don't resolve to one, throw `InvalidArgumentException`.
 
 ### Configuration

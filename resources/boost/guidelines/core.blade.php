@@ -16,7 +16,7 @@ This package applies framework defaults globally after the application boots, so
 
 ### Enabled Outside Production
 
-- **Strict Models** (`SENSIBLE_SHOULD_BE_STRICT`): accessing a missing attribute, lazy loading a relationship that Auto Eager Loading didn't load, and mass assigning a non-fillable attribute all throw. Fix the cause (select the column, eager load the relationship, add it to `$fillable`) instead of disabling this. It is also enabled in tests.
+- **Strict Models** (`SENSIBLE_SHOULD_BE_STRICT`): accessing a missing attribute, lazy loading a relationship on a model retrieved together with other models (when Auto Eager Loading didn't load it), and mass assigning a non-fillable attribute all throw. Fix the cause (select the column, eager load the relationship, add it to `$fillable`) instead of disabling this. It is also enabled in tests.
 
 ### Enabled Only in Tests
 
@@ -29,7 +29,7 @@ This package applies framework defaults globally after the application boots, so
 
 ### Configuration Values
 
-- Variables accept `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no`; any other value throws an exception.
+- Variables accept `true`/`false`, `1`/`0`, `on`/`off` and `yes`/`no` (`SENSIBLE_SET_DEFAULT_PASSWORD` also accepts a policy name); `null` counts as not set (it keeps the environment-based default, or disables features without one); any other value throws an exception.
 - For the environment-dependent entries, leave the variable unset to keep the default. An empty value (`SENSIBLE_FORCE_SCHEME=`) disables them.
 - Don't call `app()` in `config/sensible.php`: the published config is loaded before the environment is detected.
 
