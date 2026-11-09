@@ -224,7 +224,7 @@ Don't call `app()` in `config/sensible.php`: the published config is loaded befo
 This package ships an AI guideline for [Laravel Boost](https://laravel.com/docs/boost) that tells coding agents which defaults it applies. It is opt-in:
 
 - **Interactive:** select `datalogix/laravel-sensible` in the third-party prompt of `php artisan boost:install`.
-- **Without interaction:** list the package under `packages` in `boost.json`.
+- **Without interaction:** add the package to `packages` in `boost.json`, then run `php artisan boost:update` (or `php artisan boost:install --no-interaction`).
 
 Boost only loads guidelines from packages your application requires directly, so add `datalogix/laravel-sensible` to your `composer.json` even if another package already requires it.
 
