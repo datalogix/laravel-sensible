@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-- `composer test` — run the Pest suite (`vendor/bin/pest`; add `--no-coverage` to skip the clover/text coverage report).
+- `composer test` — run the Pest suite (`vendor/bin/pest`; writes `clover.xml` when a coverage driver is available, `--no-coverage` skips it, `--coverage` prints the per-file summary).
 - `vendor/bin/pest --filter "test name"` or `vendor/bin/pest tests/Configurables/ForceSchemeTest.php` — run a single test/file.
 - `composer lint` — check only: Pint (`--test`) and Larastan (`phpstan.neon.dist`, level max).
 - `composer format` — format with Laravel Pint.
