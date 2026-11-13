@@ -12,7 +12,7 @@ test('is disabled when the config value is missing', function () {
 });
 
 test('is disabled when the config value is null', function () {
-    config()->set('sensible.'.ReadsConfigurationConfigurable::class, null);
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class);
 
     expect((new ReadsConfigurationConfigurable)->isEnabled())->toBeFalse();
 });
@@ -28,7 +28,7 @@ test('ignores the default when the config value is set', function () {
 });
 
 test('uses the default when the config value is null', function () {
-    config()->set('sensible.'.ReadsConfigurationConfigurable::class, null);
+    config()->set('sensible.'.ReadsConfigurationConfigurable::class);
 
     expect((new ReadsConfigurationConfigurable)->isEnabled(default: true))->toBeTrue();
 });

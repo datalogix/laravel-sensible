@@ -6,8 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - `composer test` — run the Pest suite (`vendor/bin/pest`; writes `clover.xml` when a coverage driver is available, `--no-coverage` skips it, `--coverage` prints the per-file summary).
 - `vendor/bin/pest --filter "test name"` or `vendor/bin/pest tests/Configurables/ForceSchemeTest.php` — run a single test/file.
-- `composer lint` — check only: Pint (`--test`) and Larastan (`phpstan.neon.dist`, level max; a local `phpstan.neon` overrides it).
-- `composer format` — format with Laravel Pint.
+- `composer lint` — check only: Pint (`--test`), Larastan (`phpstan.neon.dist`, level max; a local `phpstan.neon` overrides it) and Rector (`--dry-run`, `rector.php`).
+- `composer format` — apply Rector, then format with Laravel Pint.
 - `vendor/bin/testbench <command>` — run Artisan against a Testbench app with the package provider loaded (`testbench.yaml`).
 
 CI (`.github/workflows/datalogix.yml`) uses the shared workflow `datalogix/workflows/.github/workflows/package.yml@v2`.
