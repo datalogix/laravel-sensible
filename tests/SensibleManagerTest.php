@@ -216,7 +216,7 @@ test('register during run applies immediately', function () {
 
     $sensibleManager->register(new class($sensibleManager, $instance) implements Configurable
     {
-        public function __construct(private SensibleManager $manager, private TestConfigurable $instance) {}
+        public function __construct(private readonly SensibleManager $manager, private readonly TestConfigurable $instance) {}
 
         public function enabled(): bool
         {
@@ -258,7 +258,7 @@ test('a failed registration after run keeps what it registered', function () {
 
     $failing = new class($sensibleManager, $nested) implements Configurable
     {
-        public function __construct(private SensibleManager $manager, private TestConfigurable $nested) {}
+        public function __construct(private readonly SensibleManager $manager, private readonly TestConfigurable $nested) {}
 
         public function enabled(): bool
         {
@@ -286,7 +286,7 @@ test('a failed replacement after run keeps the previous instance', function () {
     {
         public int $hits = 0;
 
-        public function __construct(private bool $fails) {}
+        public function __construct(private readonly bool $fails) {}
 
         public function enabled(): bool
         {

@@ -17,7 +17,7 @@ class SetDefaultPassword implements Configurable
      */
     public function enabled(): bool
     {
-        return $this->type() !== null;
+        return $this->type() instanceof PasswordType;
     }
 
     /**

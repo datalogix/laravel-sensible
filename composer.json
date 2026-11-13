@@ -1,7 +1,14 @@
 {
     "name": "datalogix/laravel-sensible",
     "description": "Laravel Sensible is a lightweight utility package for applying smart defaults and common best practices in everyday Laravel development.",
-    "keywords": ["laravel", "sensible", "laravel-sensible", "defaults", "configuration", "utility"],
+    "keywords": [
+        "laravel",
+        "sensible",
+        "laravel-sensible",
+        "defaults",
+        "configuration",
+        "utility"
+    ],
     "homepage": "https://github.com/datalogix/laravel-sensible",
     "license": "MIT",
     "type": "library",
@@ -21,7 +28,8 @@
         "laravel/pint": "^1.30",
         "mockery/mockery": "^1.6.10",
         "orchestra/testbench": "^10.0|^11.0",
-        "pestphp/pest": "^3.8.2|^4.4.1|^5.0.1"
+        "pestphp/pest": "^3.8.2|^4.4.1|^5.0.1",
+        "rector/rector": "^2.8"
     },
     "autoload": {
         "psr-4": {
@@ -37,9 +45,13 @@
         "test": "@php vendor/bin/pest",
         "lint": [
             "@php vendor/bin/pint --test",
-            "@php vendor/bin/phpstan analyse --memory-limit=1G"
+            "@php vendor/bin/phpstan analyse --memory-limit=1G",
+            "@php vendor/bin/rector --dry-run"
         ],
-        "format": "@php vendor/bin/pint"
+        "format": [
+            "@php vendor/bin/rector",
+            "@php vendor/bin/pint"
+        ]
     },
     "extra": {
         "laravel": {
